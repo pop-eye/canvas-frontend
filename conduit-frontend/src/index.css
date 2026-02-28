@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg: #0A0A0B;
+  --panel: #111214;
+  --border: #1E2025;
+  --accent: #00D4CC;
+  --text-primary: #E8EAED;
+  --text-secondary: #6B7280;
+  --signal-video: #F59E0B;
+  --signal-audio: #10B981;
+  --signal-data: #3B82F6;
+  --signal-control: #8B5CF6;
+  --signal-power: #EF4444;
+  --signal-av: #F97316;
+  --signal-other: #6B7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--panel);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* React Flow overrides */
+.react-flow__background {
+  background-color: var(--bg);
+}
+
+.react-flow__controls {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.react-flow__controls-button {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  fill: var(--text-secondary);
+}
+
+.react-flow__controls-button:hover {
+  background: var(--border);
+  color: var(--text-primary);
+  fill: var(--text-primary);
+}
+
+.react-flow__minimap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+/* Travelling dash animation for edges */
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.edge-animated {
+  animation: dashdraw 2s linear infinite;
+}
+
+/* Skeleton pulse animation */
+@keyframes pulse-skeleton {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.skeleton-pulse {
+  animation: pulse-skeleton 1.5s ease-in-out infinite;
+}
+
+/* Port flash animation */
+@keyframes port-flash-red {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 8px 2px #EF4444; }
+}
+
+.port-flash {
+  animation: port-flash-red 0.3s ease-in-out 5;
+}
+
+/* ── Print report ─────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide everything except the report */
+  body > * {
+    display: none !important;
+  }
+
+  /* Show the report */
+  #print-report {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #111 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    padding: 32px 48px !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide toolbar inside the print container */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Remove fixed positioning from the report container itself */
+  .no-print-container {
+    position: static !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    overflow: visible !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+}
