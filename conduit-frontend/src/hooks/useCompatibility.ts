@@ -1,7 +1,8 @@
 import { useCallback } from "react"
-import { DeviceNode } from "../types/canvas"
+import { DeviceNode, ConnectionEdge } from "../types/canvas"
 import { ConnectorPort } from "../types/api"
 import { checkCompatibility, CompatibilityResult } from "../utils/compatibility"
+import { isPortAtCapacity } from "../utils/graphAnalysis"
 
 // Handle ID format: `${direction}-${protocol}-${index}` e.g. "input-HDMI-0"
 function parseHandleId(
@@ -40,7 +41,8 @@ export function useCompatibility() {
       sourceHandleId: string,
       targetNodeId: string,
       targetHandleId: string,
-      nodes: DeviceNode[]
+      nodes: DeviceNode[],
+      edges: ConnectionEdge[] = []
     ): CompatibilityResult => {
       const sourceNode = nodes.find((n) => n.id === sourceNodeId)
       const targetNode = nodes.find((n) => n.id === targetNodeId)
@@ -59,6 +61,22 @@ export function useCompatibility() {
           reason: srcIsOutput
             ? "Cannot connect two inputs — connect from an output to an input"
             : "Cannot connect two outputs — connect from an output to an input",
+        }
+      }
+
+      // Port capacity check — block if the port group is already saturated
+      const srcCapacity = isPortAtCapacity(sourceNodeId, sourceHandleId, "output", nodes, edges)
+      if (srcCapacity?.overloaded) {
+        return {
+          compatible: false,
+          reason: `${srcCapacity.protocol} output at capacity (${srcCapacity.used}/${srcCapacity.capacity} used)`,
+        }
+      }
+      const tgtCapacity = isPortAtCapacity(targetNodeId, targetHandleId, "input", nodes, edges)
+      if (tgtCapacity?.overloaded) {
+        return {
+          compatible: false,
+          reason: `${tgtCapacity.protocol} input at capacity (${tgtCapacity.used}/${tgtCapacity.capacity} used)`,
         }
       }
 

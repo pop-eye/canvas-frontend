@@ -8,6 +8,7 @@ import { getCategoryIcon } from "../canvas/DeviceNode"
 import { DevicePanel } from "../panels/DevicePanel"
 import { PowerSummary } from "../panels/PowerSummary"
 import { SignalReport } from "../panels/SignalReport"
+import { DeviceAnalysis } from "../panels/DeviceAnalysis"
 import { CATEGORY_LABELS } from "../../types/api"
 import { MountPosition } from "../../types/spatial"
 
@@ -17,6 +18,7 @@ const TABS = [
   { id: "power", label: "Power" },
   { id: "connections", label: "Connections" },
   { id: "position", label: "Position" },
+  { id: "analysis", label: "Analysis" },
 ] as const
 
 export function Inspector() {
@@ -195,6 +197,7 @@ export function Inspector() {
             {inspectorTab === "power" && <PowerSummary />}
             {inspectorTab === "connections" && <SignalReport nodeId={selectedNodeId!} />}
             {inspectorTab === "position" && <PositionTab instanceId={node.data.instanceId} />}
+            {inspectorTab === "analysis" && <DeviceAnalysis nodeId={selectedNodeId!} />}
           </motion.div>
         </AnimatePresence>
       </div>

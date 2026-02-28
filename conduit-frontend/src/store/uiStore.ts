@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-type InspectorTab = "panel" | "specs" | "power" | "connections" | "position"
+type InspectorTab = "panel" | "specs" | "power" | "connections" | "position" | "analysis"
 export type ViewMode = "2d" | "split" | "3d" | "rack"
 
 interface UIStore {

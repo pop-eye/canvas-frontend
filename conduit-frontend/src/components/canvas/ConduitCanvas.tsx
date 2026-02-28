@@ -20,6 +20,7 @@ import { RoomBounds } from "./RoomBounds"
 import { ConnectionEdge, DeviceNode } from "../../types/canvas"
 import { v4 as uuidv4 } from "uuid"
 import { CompatibilityAlert } from "../panels/CompatibilityAlert"
+import { RigHealthPanel } from "../panels/RigHealthPanel"
 
 const nodeTypes = { device: DeviceNodeComponent, roomBounds: RoomBounds }
 const edgeTypes = { connection: ConnectionEdgeComponent }
@@ -96,7 +97,8 @@ function ConduitCanvasInner() {
         params.sourceHandle,
         params.target,
         params.targetHandle,
-        nodes
+        nodes,
+        edges
       )
 
       if (!result.compatible) {
@@ -231,9 +233,10 @@ function ConduitCanvasInner() {
         />
       </ReactFlow>
 
-      {/* Compatibility alert floating panel */}
-      <div className="absolute bottom-4 right-4 pointer-events-none">
+      {/* Floating analysis overlays */}
+      <div className="absolute bottom-4 right-4 pointer-events-none flex flex-col items-end">
         <CompatibilityAlert />
+        <RigHealthPanel />
       </div>
 
       {nodes.length === 0 && (
