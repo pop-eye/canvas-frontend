@@ -100,9 +100,9 @@ export function DeviceAnalysis({ nodeId }: DeviceAnalysisProps) {
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                  <span style={{ color }}>~{c.estimatedLengthM}m</span>
+                  <span style={{ color: colour }}>~{c.estimatedLengthM}m</span>
                   {c.maxLengthM && (
-                    <span className="opacity-50" style={{ color }}>/ {c.maxLengthM}m</span>
+                    <span className="opacity-50" style={{ color: colour }}>/ {c.maxLengthM}m</span>
                   )}
                 </div>
               </div>
