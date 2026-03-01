@@ -176,7 +176,9 @@ export function ProjectorThrow({ node, placement, room }: Props) {
   // Plane rotation: align normal with surface normal using lookAt shortcut
   // planeGeometry faces +Z by default; we want it to face along the hit normal
   const planeNormal = normal.clone().negate() // face toward projector
+  const quat = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), planeNormal)
 
+  return (
     <group>
       {/* Image footprint plane */}
       <mesh
