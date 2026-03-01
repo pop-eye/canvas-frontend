@@ -174,7 +174,141 @@ export function computeProjectorFootprint(
   }
 }
 
-// ─── Throw envelope (min & max zoom footprints) ──────────────────────────────
+// ─── Tessellated multi-surface footprint ─────────────────────────────────────
+
+export const TESS_COLS = 20
+export const TESS_ROWS = 12
+
+export interface TessellatedFootprint {
+  /** Flat triangle-list positions for BufferGeometry (Float32Array, x/y/z triplets) */
+  positions: Float32Array
+  /** Per-vertex UV coordinates (Float32Array, u/v pairs, matches positions) */
+  uvs: Float32Array
+  /** Grid of hit points [row][col], row 0 = bottom, null = no surface hit */
+  gridVertices: (Vector3 | null)[][]
+  gridCols: number
+  gridRows: number
+  /** True when rays landed on more than one surface type */
+  isMultiSurface: boolean
+  surfaces: Array<"floor" | "ceiling" | "wall">
+  /** Sum of all triangle areas in m² */
+  totalAreaM2: number
+  // ── Center-ray info (for label placement and analysis) ──
+  centre: Vector3
+  apex: Vector3
+  dir: Vector3
+  imgW: number
+  imgH: number
+  throwDist: number
+  throwRatio: number
+  lumens?: number
+}
+
+function triArea(a: Vector3, b: Vector3, c: Vector3): number {
+  return b.clone().sub(a).cross(c.clone().sub(a)).length() * 0.5
+}
+
+/**
+ * Tessellates the projector frustum into a (TESS_COLS × TESS_ROWS) grid.
+ * Each vertex shoots its own ray so the resulting mesh correctly folds across
+ * multiple room surfaces — floor, walls and ceiling simultaneously.
+ */
+export function computeTessellatedFootprint(
+  node: DeviceNode,
+  placement: DevicePlacement,
+  room: RoomConfig3D
+): TessellatedFootprint | null {
+  // Use the center footprint to establish frustum parameters
+  const fp = computeProjectorFootprint(node, placement, room)
+  if (!fp) return null
+
+  const { width_m: W, depth_m: D, height_m: H } = room
+  const origin = new Vector3(
+    placement.position3d.x,
+    placement.position3d.y,
+    placement.position3d.z
+  )
+  const { centre, right, imageUp, imgW, imgH, throwDist, throwRatio, apex, dir, lumens } = fp
+
+  const COLS = TESS_COLS
+  const ROWS = TESS_ROWS
+
+  // Build grid: row 0 = bottom (v=0), row ROWS = top (v=1)
+  const gridVertices: (Vector3 | null)[][] = []
+  const hitSurfaceSet = new Set<"floor" | "ceiling" | "wall">()
+
+  for (let row = 0; row <= ROWS; row++) {
+    gridVertices[row] = []
+    for (let col = 0; col <= COLS; col++) {
+      const u = col / COLS   // 0 = left,   1 = right
+      const v = row / ROWS   // 0 = bottom, 1 = top
+      // Point on the lens-shifted image plane for this (u, v)
+      const imagePoint = centre.clone()
+        .addScaledVector(right,   (u - 0.5) * imgW)
+        .addScaledVector(imageUp, (v - 0.5) * imgH)
+      // Ray from the projector origin through that image point
+      const rayDir = imagePoint.clone().sub(origin).normalize()
+      const hit = rayRoomIntersect(origin, rayDir, W, H, D)
+      if (hit) {
+        gridVertices[row].push(hit.point.clone())
+        hitSurfaceSet.add(hit.surface)
+      } else {
+        gridVertices[row].push(null)
+      }
+    }
+  }
+
+  // Build triangles from quads — each quad → 2 triangles, skip any with null vertices
+  const posArr: number[] = []
+  const uvArr: number[] = []
+  let totalAreaM2 = 0
+
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const bl = gridVertices[row][col]
+      const br = gridVertices[row][col + 1]
+      const tl = gridVertices[row + 1][col]
+      const tr = gridVertices[row + 1][col + 1]
+
+      const u0 = col / COLS,       u1 = (col + 1) / COLS
+      const v0 = row / ROWS,       v1 = (row + 1) / ROWS
+
+      // Triangle 1: bl, br, tr
+      if (bl && br && tr) {
+        posArr.push(bl.x, bl.y, bl.z,  br.x, br.y, br.z,  tr.x, tr.y, tr.z)
+        uvArr.push(u0, v0,  u1, v0,  u1, v1)
+        totalAreaM2 += triArea(bl, br, tr)
+      }
+      // Triangle 2: bl, tr, tl
+      if (bl && tr && tl) {
+        posArr.push(bl.x, bl.y, bl.z,  tr.x, tr.y, tr.z,  tl.x, tl.y, tl.z)
+        uvArr.push(u0, v0,  u1, v1,  u0, v1)
+        totalAreaM2 += triArea(bl, tr, tl)
+      }
+    }
+  }
+
+  if (posArr.length === 0) return null
+
+  return {
+    positions: new Float32Array(posArr),
+    uvs: new Float32Array(uvArr),
+    gridVertices,
+    gridCols: COLS,
+    gridRows: ROWS,
+    isMultiSurface: hitSurfaceSet.size > 1,
+    surfaces: Array.from(hitSurfaceSet),
+    totalAreaM2,
+    centre,
+    apex,
+    dir,
+    imgW,
+    imgH,
+    throwDist,
+    throwRatio,
+    lumens,
+  }
+}
 
 export interface ThrowEnvelope {
   minZoom: FootprintData | null   // smallest image (throw_ratio_max)
