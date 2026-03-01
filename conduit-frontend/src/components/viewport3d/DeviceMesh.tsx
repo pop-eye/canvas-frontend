@@ -18,22 +18,10 @@ interface Props {
 /** Semi-transparent projection/audio/lighting coverage cone or arc */
 function CoverageVolume({ record, size }: { record: import("../../types/api").EquipmentRecord; size: [number, number, number] }) {
   const env = record.metadata?.environment
-  const proj = record.metadata?.projection
   const audio = record.metadata?.audio
   const light = record.metadata?.lighting
 
   const cones: ReactElement[] = []
-
-  // Projection throw cone
-  if (proj?.lumens && env?.max_distance_m) {
-    const length = env.max_distance_m
-    cones.push(
-      <mesh key="throw" position={[0, -length / 2 - size[1] / 2, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[length * 0.3, length, 16, 1, true]} />
-        <meshStandardMaterial color="#F59E0B" opacity={0.07} transparent depthWrite={false} side={2} />
-      </mesh>
-    )
-  }
 
   // Audio coverage arc
   if (env?.coverage_degrees && audio) {

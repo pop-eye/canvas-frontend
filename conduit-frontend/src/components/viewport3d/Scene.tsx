@@ -4,6 +4,7 @@ import { useCanvasStore } from "../../store/canvasStore"
 import { RoomVolume } from "./RoomVolume"
 import { DeviceMesh } from "./DeviceMesh"
 import { CameraRig } from "./CameraRig"
+import { ProjectorThrow } from "./ProjectorThrow"
 
 const DEFAULT_ROOM = {
   width_m: 20,
@@ -66,6 +67,23 @@ export function Scene() {
           />
         )
       })}
+
+      {/* Projector throw visualisations (world-space, one per projection device) */}
+      {nodes
+        .filter(n => n.data.record.category === "projection")
+        .map(node => {
+          const placement = placements[node.data.instanceId]
+          if (!placement) return null
+          return (
+            <ProjectorThrow
+              key={`throw-${node.data.instanceId}`}
+              node={node}
+              placement={placement}
+              room={room}
+            />
+          )
+        })
+      }
 
       {/* Camera */}
       <CameraRig roomConfig={room} />
