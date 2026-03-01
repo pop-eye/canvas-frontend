@@ -115,7 +115,18 @@ export function ProjectorAnalysisPanel({ nodeId }: Props) {
     return runProjectorAnalysis(node, placement, room)
   }, [node, placement, room])
 
-  if (!node || !placement) {
+  if (!node) return null
+
+  if (node.data.record.category !== "projection") {
+    return (
+      <div className="p-4 space-y-1 text-center" style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="text-[11px] pt-4">Not a projection device.</div>
+        <div className="text-[10px] opacity-50">Throw analysis is only available for projectors.</div>
+      </div>
+    )
+  }
+
+  if (!placement) {
     return (
       <div className="p-4 text-sm text-center" style={{ color: "var(--text-secondary)" }}>
         Assign a 3D position in the <strong>Position</strong> tab first.

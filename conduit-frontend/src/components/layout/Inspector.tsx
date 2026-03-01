@@ -13,16 +13,15 @@ import { ProjectorAnalysisPanel } from "../panels/ProjectorAnalysisPanel"
 import { CATEGORY_LABELS } from "../../types/api"
 import { MountPosition } from "../../types/spatial"
 
-const BASE_TABS = [
+const TABS = [
   { id: "panel", label: "Panel" },
   { id: "specs", label: "Specs" },
   { id: "power", label: "Power" },
   { id: "connections", label: "Connections" },
   { id: "position", label: "Position" },
   { id: "analysis", label: "Analysis" },
+  { id: "throw", label: "Throw" },
 ] as const
-
-const THROW_TAB = { id: "throw", label: "Throw" } as const
 
 export function Inspector() {
   const { nodes, selectedNodeId, selectNode, updateNodeLabel } = useCanvasStore()
@@ -35,10 +34,6 @@ export function Inspector() {
   const node = nodes.find((n) => n.id === selectedNodeId)
   const record = node?.data.record
   const label = node?.data.label ?? record?.name ?? ""
-
-  const TABS = record?.category === "projection"
-    ? [...BASE_TABS, THROW_TAB]
-    : BASE_TABS
 
   useEffect(() => { if (!editingLabel) setEditValue(label) }, [label, editingLabel])
   useEffect(() => { if (editingLabel) labelInputRef.current?.select() }, [editingLabel])
@@ -169,8 +164,14 @@ export function Inspector() {
         </div>
 
         {/* Tabs */}
+        <div className="relative mt-3 -mb-3">
+        {/* Right-edge fade hint */}
         <div
-          className="flex gap-0 mt-3 -mb-3"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-10"
+          style={{ background: "linear-gradient(to right, transparent, var(--panel))" }}
+        />
+        <div
+          className="flex gap-0"
           style={{ overflowX: "auto", scrollbarWidth: "none" }}
         >
           {TABS.map((tab) => (
@@ -188,6 +189,7 @@ export function Inspector() {
               {tab.label}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
