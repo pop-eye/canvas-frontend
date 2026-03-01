@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react"
-import { Vector3, BufferGeometry, Float32BufferAttribute } from "three"
+import { Vector3, BufferGeometry, Float32BufferAttribute, Mesh, MeshBasicMaterial } from "three"
 import { useFrame } from "@react-three/fiber"
 import { Html } from "@react-three/drei"
 import type { DeviceNode } from "../../types/canvas"
@@ -125,7 +125,7 @@ interface OverlapZone {
 }
 
 export function OverlapHighlight({ nodes, placements, room }: Props) {
-  const meshRefs = useRef<Map<string, THREE.Mesh>>(new Map())
+  const meshRefs = useRef<Map<string, Mesh>>(new Map())
 
   const overlaps: OverlapZone[] = useMemo(() => {
     const projNodes = nodes.filter((n) => n.data.record.category === "projection")
@@ -188,7 +188,7 @@ export function OverlapHighlight({ nodes, placements, room }: Props) {
   useFrame(({ clock }) => {
     meshRefs.current.forEach((mesh) => {
       if (mesh.material) {
-        const mat = mesh.material as THREE.MeshBasicMaterial
+        const mat = mesh.material as MeshBasicMaterial
         mat.opacity = 0.25 + Math.sin(clock.elapsedTime * 1.5) * 0.08
       }
     })

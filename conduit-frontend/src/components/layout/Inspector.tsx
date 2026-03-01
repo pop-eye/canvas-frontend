@@ -169,12 +169,15 @@ export function Inspector() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0 mt-3 -mb-3">
+        <div
+          className="flex gap-0 mt-3 -mb-3"
+          style={{ overflowX: "auto", scrollbarWidth: "none" }}
+        >
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setInspectorTab(tab.id)}
-              className="px-3 py-1.5 text-xs border-b-2 transition-colors"
+              className="px-2 py-1.5 text-xs border-b-2 transition-colors shrink-0 whitespace-nowrap"
               style={{
                 borderBottomColor: inspectorTab === tab.id ? "var(--accent)" : "transparent",
                 color: inspectorTab === tab.id ? "var(--accent)" : "var(--text-secondary)",
