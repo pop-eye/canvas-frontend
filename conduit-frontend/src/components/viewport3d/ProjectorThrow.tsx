@@ -228,7 +228,7 @@ export function ProjectorThrow({ node, placement, room }: Props) {
           whiteSpace: "nowrap",
           lineHeight: 1.5,
         }}>
-          <div>{imgW.toFixed(2)}m {'\u00D7'} {imgH.toFixed(2)}m</div>
+          <div>{imgW.toFixed(2)}m x {imgH.toFixed(2)}m</div>
           <div style={{ opacity: 0.6 }}>{throwDist.toFixed(1)}m throw</div>
         </div>
       </Html>
