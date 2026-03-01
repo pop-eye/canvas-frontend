@@ -5,6 +5,8 @@ import { RoomVolume } from "./RoomVolume"
 import { DeviceMesh } from "./DeviceMesh"
 import { CameraRig } from "./CameraRig"
 import { ProjectorThrow } from "./ProjectorThrow"
+import { OverlapHighlight } from "./OverlapHighlight"
+import { AudioCoverageHeatmap } from "./AudioCoverageHeatmap"
 
 const DEFAULT_ROOM = {
   width_m: 20,
@@ -84,6 +86,12 @@ export function Scene() {
           )
         })
       }
+
+      {/* Projector overlap highlights */}
+      <OverlapHighlight nodes={nodes} placements={placements} room={room} />
+
+      {/* Audio coverage heatmap on floor */}
+      <AudioCoverageHeatmap nodes={nodes} placements={placements} />
 
       {/* Camera */}
       <CameraRig roomConfig={room} />

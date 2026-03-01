@@ -71,6 +71,7 @@ export interface ProjectionSpec {
   contrast_ratio?: string
   lamp_type?: string
   lamp_hours?: number
+  min_throw_distance_m?: number
 }
 
 export interface DisplaySpec {

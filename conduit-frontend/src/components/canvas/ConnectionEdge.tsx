@@ -3,6 +3,7 @@ import { EdgeProps, getBezierPath, EdgeLabelRenderer } from "@xyflow/react"
 import { ConnectionEdge as ConnectionEdgeType } from "../../types/canvas"
 import { portColourHex } from "../../utils/portColour"
 import { AlertTriangle } from "lucide-react"
+import { useUIStore } from "../../store/uiStore"
 
 export const ConnectionEdge = memo(function ConnectionEdge({
   id,
@@ -27,6 +28,7 @@ export const ConnectionEdge = memo(function ConnectionEdge({
   const signalType = data?.signalType ?? "other"
   const compatible = data?.compatible ?? true
   const warning = data?.warning
+  const showEdgeLabels = useUIStore((s) => s.showEdgeLabels)
 
   let strokeColour = portColourHex(signalType)
   if (!compatible) strokeColour = "#EF4444"
@@ -82,6 +84,38 @@ export const ConnectionEdge = memo(function ConnectionEdge({
                 size={10}
                 style={{ color: strokeColour }}
               />
+            </div>
+          </div>
+        </EdgeLabelRenderer>
+      )}
+
+      {/* Signal type label (shown when labels enabled and edge is compatible) */}
+      {showEdgeLabels && compatible && !warning && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: "absolute",
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY - 14}px)`,
+              pointerEvents: "none",
+              opacity: selected ? 1 : 0.55,
+              transition: "opacity 0.15s",
+            }}
+            className="nodrag nopan"
+          >
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 9,
+                color: strokeColour,
+                background: "rgba(10,10,11,0.85)",
+                border: `1px solid ${strokeColour}40`,
+                borderRadius: 3,
+                padding: "1px 5px",
+                whiteSpace: "nowrap",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {signalType}
             </div>
           </div>
         </EdgeLabelRenderer>

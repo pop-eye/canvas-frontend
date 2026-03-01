@@ -28,4 +28,10 @@ export interface RoomConfig3D {
   depth_m: number
   height_m: number
   venueName: string
+  /** Ambient illuminance in lux — used for contrast ratio estimates */
+  ambient_lux?: number
+  /** Physical screen/surface width in metres (optional — for aspect & pixel-density checks) */
+  screen_width_m?: number
+  /** Physical screen/surface height in metres */
+  screen_height_m?: number
 }

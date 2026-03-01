@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-type InspectorTab = "panel" | "specs" | "power" | "connections" | "position" | "analysis"
+type InspectorTab = "panel" | "specs" | "power" | "connections" | "position" | "analysis" | "throw"
 export type ViewMode = "2d" | "split" | "3d" | "rack"
 
 interface UIStore {
@@ -10,6 +10,8 @@ interface UIStore {
   viewMode: ViewMode
   toasts: Toast[]
   isDraggingDevice: boolean
+  gridSnap: boolean
+  showEdgeLabels: boolean
 
   setInspectorTab: (tab: InspectorTab) => void
   openInspector: () => void
@@ -19,6 +21,8 @@ interface UIStore {
   addToast: (toast: Omit<Toast, "id">) => void
   removeToast: (id: string) => void
   setDraggingDevice: (v: boolean) => void
+  toggleGridSnap: () => void
+  toggleEdgeLabels: () => void
 }
 
 export interface Toast {
@@ -34,6 +38,8 @@ export const useUIStore = create<UIStore>((set) => ({
   viewMode: "2d",
   toasts: [],
   isDraggingDevice: false,
+  gridSnap: false,
+  showEdgeLabels: true,
 
   setInspectorTab: (tab) => set({ inspectorTab: tab }),
   openInspector: () => set({ inspectorOpen: true }),
@@ -53,4 +59,6 @@ export const useUIStore = create<UIStore>((set) => ({
   removeToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
   setDraggingDevice: (v) => set({ isDraggingDevice: v }),
+  toggleGridSnap: () => set((state) => ({ gridSnap: !state.gridSnap })),
+  toggleEdgeLabels: () => set((state) => ({ showEdgeLabels: !state.showEdgeLabels })),
 }))

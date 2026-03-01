@@ -9,17 +9,39 @@ interface Props {
 }
 
 export function RoomConfigModal({ open, onClose }: Props) {
-  const { roomConfig, setRoomConfig } = useCanvasStore()
+  const { roomConfig, setRoomConfig, roomConfig3D, setRoomConfig3D } = useCanvasStore()
 
+  // 2D canvas room
   const [name, setName] = useState(roomConfig?.name ?? "")
   const [width, setWidth] = useState(String(roomConfig?.width_m ?? 20))
   const [depth, setDepth] = useState(String(roomConfig?.depth_m ?? 15))
+
+  // 3D room extras
+  const r3 = roomConfig3D
+  const [height, setHeight] = useState(String(r3?.height_m ?? 5))
+  const [ambientLux, setAmbientLux] = useState(String(r3?.ambient_lux ?? ""))
+  const [screenW, setScreenW] = useState(String(r3?.screen_width_m ?? ""))
+  const [screenH, setScreenH] = useState(String(r3?.screen_height_m ?? ""))
 
   function handleSave() {
     const w = parseFloat(width)
     const d = parseFloat(depth)
     if (!name.trim() || isNaN(w) || isNaN(d) || w <= 0 || d <= 0) return
     setRoomConfig({ name: name.trim(), width_m: w, depth_m: d })
+
+    const h = parseFloat(height)
+    const lux = parseFloat(ambientLux)
+    const sw = parseFloat(screenW)
+    const sh = parseFloat(screenH)
+    setRoomConfig3D({
+      width_m: w,
+      depth_m: d,
+      height_m: isNaN(h) || h <= 0 ? 5 : h,
+      venueName: name.trim(),
+      ambient_lux: isNaN(lux) || lux <= 0 ? undefined : lux,
+      screen_width_m: isNaN(sw) || sw <= 0 ? undefined : sw,
+      screen_height_m: isNaN(sh) || sh <= 0 ? undefined : sh,
+    })
     onClose()
   }
 
@@ -128,6 +150,96 @@ export function RoomConfigModal({ open, onClose }: Props) {
               <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
                 Canvas grid: 1 square = 1m
               </p>
+
+              {/* 3D height */}
+              <Field label="Height (m)">
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  step="0.5"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm rounded-[2px] border outline-none focus:ring-1"
+                  style={{
+                    background: "var(--bg)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-primary)",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 11,
+                  }}
+                />
+              </Field>
+
+              {/* Separator */}
+              <div
+                className="text-[9px] uppercase tracking-[0.15em] pt-1 pb-0.5 font-semibold"
+                style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Projection Planning
+              </div>
+
+              {/* Ambient lux */}
+              <Field label="Ambient Light (lux)">
+                <input
+                  type="number"
+                  min="0"
+                  step="10"
+                  placeholder="e.g. 50 for dim room, 500 for office"
+                  value={ambientLux}
+                  onChange={(e) => setAmbientLux(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm rounded-[2px] border outline-none focus:ring-1"
+                  style={{
+                    background: "var(--bg)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-primary)",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 11,
+                  }}
+                />
+              </Field>
+
+              {/* Screen dimensions */}
+              <div className="flex gap-3">
+                <Field label="Screen Width (m)" className="flex-1">
+                  <input
+                    type="number"
+                    min="0.1"
+                    max="50"
+                    step="0.1"
+                    placeholder="e.g. 4"
+                    value={screenW}
+                    onChange={(e) => setScreenW(e.target.value)}
+                    className="w-full px-3 py-1.5 text-sm rounded-[2px] border outline-none focus:ring-1"
+                    style={{
+                      background: "var(--bg)",
+                      borderColor: "var(--border)",
+                      color: "var(--text-primary)",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 11,
+                    }}
+                  />
+                </Field>
+                <Field label="Screen Height (m)" className="flex-1">
+                  <input
+                    type="number"
+                    min="0.1"
+                    max="50"
+                    step="0.1"
+                    placeholder="e.g. 2.25"
+                    value={screenH}
+                    onChange={(e) => setScreenH(e.target.value)}
+                    className="w-full px-3 py-1.5 text-sm rounded-[2px] border outline-none focus:ring-1"
+                    style={{
+                      background: "var(--bg)",
+                      borderColor: "var(--border)",
+                      color: "var(--text-primary)",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 11,
+                    }}
+                  />
+                </Field>
+              </div>
             </div>
 
             {/* Footer */}

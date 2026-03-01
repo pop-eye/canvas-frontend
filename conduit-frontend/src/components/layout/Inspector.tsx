@@ -9,10 +9,11 @@ import { DevicePanel } from "../panels/DevicePanel"
 import { PowerSummary } from "../panels/PowerSummary"
 import { SignalReport } from "../panels/SignalReport"
 import { DeviceAnalysis } from "../panels/DeviceAnalysis"
+import { ProjectorAnalysisPanel } from "../panels/ProjectorAnalysisPanel"
 import { CATEGORY_LABELS } from "../../types/api"
 import { MountPosition } from "../../types/spatial"
 
-const TABS = [
+const BASE_TABS = [
   { id: "panel", label: "Panel" },
   { id: "specs", label: "Specs" },
   { id: "power", label: "Power" },
@@ -20,6 +21,8 @@ const TABS = [
   { id: "position", label: "Position" },
   { id: "analysis", label: "Analysis" },
 ] as const
+
+const THROW_TAB = { id: "throw", label: "Throw" } as const
 
 export function Inspector() {
   const { nodes, selectedNodeId, selectNode, updateNodeLabel } = useCanvasStore()
@@ -32,6 +35,10 @@ export function Inspector() {
   const node = nodes.find((n) => n.id === selectedNodeId)
   const record = node?.data.record
   const label = node?.data.label ?? record?.name ?? ""
+
+  const TABS = record?.category === "projection"
+    ? [...BASE_TABS, THROW_TAB]
+    : BASE_TABS
 
   useEffect(() => { if (!editingLabel) setEditValue(label) }, [label, editingLabel])
   useEffect(() => { if (editingLabel) labelInputRef.current?.select() }, [editingLabel])
@@ -198,6 +205,7 @@ export function Inspector() {
             {inspectorTab === "connections" && <SignalReport nodeId={selectedNodeId!} />}
             {inspectorTab === "position" && <PositionTab instanceId={node.data.instanceId} />}
             {inspectorTab === "analysis" && <DeviceAnalysis nodeId={selectedNodeId!} />}
+            {inspectorTab === "throw" && <ProjectorAnalysisPanel nodeId={selectedNodeId!} />}
           </motion.div>
         </AnimatePresence>
       </div>

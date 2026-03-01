@@ -30,6 +30,7 @@ interface CanvasStore {
   undoStack: CanvasSnapshot[]
 
   addNode: (record: EquipmentRecord, position: XYPosition) => void
+  duplicateNode: (id: string) => void
   removeNode: (id: string) => void
   selectNode: (id: string | null) => void
   addEdge: (edge: ConnectionEdge) => void
@@ -135,6 +136,30 @@ export const useCanvasStore = create<CanvasStore>()(
           undoStack: [snapshot(state), ...state.undoStack].slice(0, MAX_UNDO_STACK),
           nodes: [...state.nodes, newNode],
           placements: { ...state.placements, [instanceId]: placement },
+        })
+      },
+
+      duplicateNode: (id) => {
+        const state = get()
+        const source = state.nodes.find((n) => n.id === id)
+        if (!source) return
+        const newId = uuidv4()
+        const newNode: DeviceNode = {
+          ...source,
+          id: newId,
+          position: { x: source.position.x + 40, y: source.position.y + 40 },
+          data: { ...source.data, instanceId: newId },
+          selected: false,
+        }
+        const srcPlacement = state.placements[id]
+        const newPlacement = srcPlacement
+          ? { ...srcPlacement, instanceId: newId }
+          : defaultPlacement(newId, source.data.record, state.roomConfig3D)
+        set({
+          undoStack: [snapshot(state), ...state.undoStack].slice(0, MAX_UNDO_STACK),
+          nodes: [...state.nodes, newNode],
+          placements: { ...state.placements, [newId]: newPlacement },
+          selectedNodeId: newId,
         })
       },
 
