@@ -9,6 +9,7 @@ interface UIStore {
   sidebarOpen: boolean
   viewMode: ViewMode
   toasts: Toast[]
+  isDraggingDevice: boolean
 
   setInspectorTab: (tab: InspectorTab) => void
   openInspector: () => void
@@ -17,6 +18,7 @@ interface UIStore {
   setViewMode: (mode: ViewMode) => void
   addToast: (toast: Omit<Toast, "id">) => void
   removeToast: (id: string) => void
+  setDraggingDevice: (v: boolean) => void
 }
 
 export interface Toast {
@@ -31,6 +33,7 @@ export const useUIStore = create<UIStore>((set) => ({
   sidebarOpen: true,
   viewMode: "2d",
   toasts: [],
+  isDraggingDevice: false,
 
   setInspectorTab: (tab) => set({ inspectorTab: tab }),
   openInspector: () => set({ inspectorOpen: true }),
@@ -49,4 +52,5 @@ export const useUIStore = create<UIStore>((set) => ({
 
   removeToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  setDraggingDevice: (v) => set({ isDraggingDevice: v }),
 }))

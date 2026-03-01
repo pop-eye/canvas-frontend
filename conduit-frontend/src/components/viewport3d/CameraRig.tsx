@@ -4,6 +4,7 @@ import { OrbitControls } from "@react-three/drei"
 import { Vector3 } from "three"
 import type { RoomConfig3D } from "../../types/spatial"
 import { useCanvasStore } from "../../store/canvasStore"
+import { useUIStore } from "../../store/uiStore"
 
 interface Props {
   roomConfig: RoomConfig3D
@@ -27,6 +28,7 @@ export function CameraRig({ roomConfig }: Props) {
   const { camera } = useThree()
   const controlsRef = useRef<any>(null)
   const { selectedNodeId, nodes, placements } = useCanvasStore()
+  const isDraggingDevice = useUIStore((s) => s.isDraggingDevice)
 
   function moveTo(preset: PresetKey) {
     const p = getPresets(roomConfig)[preset]
@@ -73,6 +75,7 @@ export function CameraRig({ roomConfig }: Props) {
       dampingFactor={0.05}
       minDistance={0.5}
       maxDistance={200}
+      enabled={!isDraggingDevice}
     />
   )
 }

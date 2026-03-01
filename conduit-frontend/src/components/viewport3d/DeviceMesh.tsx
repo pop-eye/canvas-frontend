@@ -6,6 +6,7 @@ import { Vector3 } from "three"
 import type { DeviceNode } from "../../types/canvas"
 import type { DevicePlacement } from "../../types/spatial"
 import { useCanvasStore } from "../../store/canvasStore"
+import { useUIStore } from "../../store/uiStore"
 import { DeviceMeshByCategory } from "./DeviceMeshByCategory"
 import { PortIndicator3D } from "./PortIndicator3D"
 import { getCategoryGeo, deriveSize } from "../../utils/deviceGeometry"
@@ -52,6 +53,7 @@ function CoverageVolume({ record, size }: { record: import("../../types/api").Eq
 
 export function DeviceMesh({ node, placement }: Props) {
   const { selectNode, selectedNodeId, setPlacement } = useCanvasStore()
+  const { setDraggingDevice } = useUIStore()
   const isSelected = selectedNodeId === node.id
   const [hovered, setHovered] = useState(false)
   const groupRef = useRef<any>(null)
@@ -77,6 +79,7 @@ export function DeviceMesh({ node, placement }: Props) {
     dragStart.current.set(e.point.x, e.point.y, e.point.z)
     posStart.current = [x, y, z]
     ;(e.target as any).setPointerCapture?.(e.pointerId)
+    setDraggingDevice(true)
   }
 
   function handlePointerMove(e: ThreeEvent<PointerEvent>) {
@@ -110,6 +113,7 @@ export function DeviceMesh({ node, placement }: Props) {
       onPointerMove={handlePointerMove}
       onPointerOver={(e) => { e.stopPropagation(); setHovered(true) }}
       onPointerOut={() => setHovered(false)}
+      onPointerUp={() => setDraggingDevice(false)}
     >
       <DeviceMeshByCategory
         record={node.data.record}
