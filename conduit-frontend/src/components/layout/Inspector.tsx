@@ -13,15 +13,17 @@ import { ProjectorAnalysisPanel } from "../panels/ProjectorAnalysisPanel"
 import { CATEGORY_LABELS } from "../../types/api"
 import { MountPosition } from "../../types/spatial"
 
-const TABS = [
-  { id: "panel", label: "Panel" },
-  { id: "specs", label: "Specs" },
-  { id: "power", label: "Power" },
-  { id: "connections", label: "Connections" },
-  { id: "position", label: "Position" },
-  { id: "analysis", label: "Analysis" },
-  { id: "throw", label: "Throw" },
+const ALL_TABS = [
+  { id: "panel", label: "Panel", categories: null },
+  { id: "specs", label: "Specs", categories: null },
+  { id: "power", label: "Power", categories: null },
+  { id: "connections", label: "Connections", categories: null },
+  { id: "position", label: "Position", categories: null },
+  { id: "analysis", label: "Analysis", categories: null },
+  { id: "throw", label: "Throw", categories: ["projection"] as string[] },
 ] as const
+
+type TabId = typeof ALL_TABS[number]["id"]
 
 export function Inspector() {
   const { nodes, selectedNodeId, selectNode, updateNodeLabel } = useCanvasStore()
@@ -34,6 +36,30 @@ export function Inspector() {
   const node = nodes.find((n) => n.id === selectedNodeId)
   const record = node?.data.record
   const label = node?.data.label ?? record?.name ?? ""
+
+  // Filter tabs by category
+  const visibleTabs = ALL_TABS.filter(
+    (t) => t.categories === null || (record && t.categories.includes(record.category))
+  )
+
+  // Auto-switch to the most relevant tab when a different device is selected
+  useEffect(() => {
+    if (!record) return
+    if (record.category === "projection") {
+      setInspectorTab("throw" as TabId)
+    } else if (visibleTabs.find((t) => t.id === inspectorTab) == null) {
+      // current tab is no longer visible (e.g. was on "throw", now a non-projector)
+      setInspectorTab("panel" as TabId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNodeId])
+
+  // Reset to "panel" when the active tab is hidden for the current device type
+  useEffect(() => {
+    if (record && visibleTabs.find((t) => t.id === inspectorTab) == null) {
+      setInspectorTab("panel" as TabId)
+    }
+  }, [record?.category])
 
   useEffect(() => { if (!editingLabel) setEditValue(label) }, [label, editingLabel])
   useEffect(() => { if (editingLabel) labelInputRef.current?.select() }, [editingLabel])
@@ -174,21 +200,31 @@ export function Inspector() {
           className="flex gap-0"
           style={{ overflowX: "auto", scrollbarWidth: "none" }}
         >
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setInspectorTab(tab.id)}
-              className="px-2 py-1.5 text-xs border-b-2 transition-colors shrink-0 whitespace-nowrap"
-              style={{
-                borderBottomColor: inspectorTab === tab.id ? "var(--accent)" : "transparent",
-                color: inspectorTab === tab.id ? "var(--accent)" : "var(--text-secondary)",
-                fontFamily: "'JetBrains Mono', monospace",
-                background: "transparent",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {visibleTabs.map((tab) => {
+            const isActive = inspectorTab === tab.id
+            const hasBadge = tab.id === "throw" && record?.category === "projection"
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setInspectorTab(tab.id as TabId)}
+                className="px-2 py-1.5 text-xs border-b-2 transition-colors shrink-0 whitespace-nowrap flex items-center gap-1"
+                style={{
+                  borderBottomColor: isActive ? "var(--accent)" : "transparent",
+                  color: isActive ? "var(--accent)" : "var(--text-secondary)",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: "transparent",
+                }}
+              >
+                {tab.label}
+                {hasBadge && !isActive && (
+                  <span
+                    className="inline-block rounded-full"
+                    style={{ width: 5, height: 5, background: "var(--accent)", flexShrink: 0 }}
+                  />
+                )}
+              </button>
+            )
+          })}
         </div>
         </div>
       </div>
