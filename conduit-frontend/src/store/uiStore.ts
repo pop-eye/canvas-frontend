@@ -4,6 +4,7 @@ type InspectorTab = "panel" | "specs" | "power" | "connections" | "position" | "
 export type ViewMode = "2d" | "split" | "3d" | "rack"
 
 interface UIStore {
+  theme: "light" | "dark"
   inspectorOpen: boolean
   inspectorTab: InspectorTab
   sidebarOpen: boolean
@@ -13,6 +14,7 @@ interface UIStore {
   gridSnap: boolean
   showEdgeLabels: boolean
 
+  toggleTheme: () => void
   setInspectorTab: (tab: InspectorTab) => void
   openInspector: () => void
   closeInspector: () => void
@@ -32,6 +34,7 @@ export interface Toast {
 }
 
 export const useUIStore = create<UIStore>((set) => ({
+  theme: "dark",
   inspectorOpen: false,
   inspectorTab: "panel",
   sidebarOpen: true,
@@ -41,6 +44,17 @@ export const useUIStore = create<UIStore>((set) => ({
   gridSnap: false,
   showEdgeLabels: true,
 
+  toggleTheme: () => set((state) => {
+    const newTheme = state.theme === "dark" ? "light" : "dark"
+    if (newTheme === "light") {
+      document.documentElement.classList.add("light")
+      document.documentElement.classList.remove("dark")
+    } else {
+      document.documentElement.classList.add("dark")
+      document.documentElement.classList.remove("light")
+    }
+    return { theme: newTheme }
+  }),
   setInspectorTab: (tab) => set({ inspectorTab: tab }),
   openInspector: () => set({ inspectorOpen: true }),
   closeInspector: () => set({ inspectorOpen: false }),

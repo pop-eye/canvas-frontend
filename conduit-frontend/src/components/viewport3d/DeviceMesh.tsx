@@ -102,6 +102,7 @@ export function DeviceMesh({ node, placement }: Props) {
   }
 
   const label = node.data.label ?? node.data.record.name
+  const theme = useUIStore((s) => s.theme)
 
   return (
     <group
@@ -146,11 +147,12 @@ export function DeviceMesh({ node, placement }: Props) {
           <div style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 11,
-            color: "#E8EAED",
-            background: "rgba(10,10,11,0.88)",
+            color: "var(--text-primary)",
+            background: theme === "light" ? "rgba(255,255,255,0.88)" : "rgba(10,10,11,0.88)",
             padding: "3px 7px",
-            borderLeft: "2px solid #00D4CC",
+            borderLeft: "2px solid var(--accent)",
             whiteSpace: "nowrap",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           }}>
             {label}
           </div>

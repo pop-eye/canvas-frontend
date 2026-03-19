@@ -8,6 +8,8 @@ import { ProjectorThrow } from "./ProjectorThrow"
 import { OverlapHighlight } from "./OverlapHighlight"
 import { AudioCoverageHeatmap } from "./AudioCoverageHeatmap"
 
+import { useUIStore } from "../../store/uiStore"
+
 const DEFAULT_ROOM = {
   width_m: 20,
   depth_m: 15,
@@ -23,16 +25,18 @@ export function Scene() {
       roomConfig3D: s.roomConfig3D,
     }))
   )
+  const theme = useUIStore(s => s.theme)
+  const isLight = theme === "light"
 
   const room = roomConfig3D ?? DEFAULT_ROOM
 
   return (
     <>
       {/* Lighting */}
-      <ambientLight intensity={0.45} />
+      <ambientLight intensity={isLight ? 0.8 : 0.45} />
       <directionalLight
         position={[10, 20, 10]}
-        intensity={1.2}
+        intensity={isLight ? 1.0 : 1.2}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-far={100}
@@ -43,15 +47,15 @@ export function Scene() {
       />
       <pointLight
         position={[room.width_m / 2, room.height_m, room.depth_m / 2]}
-        intensity={0.4}
-        color="#00D4CC"
+        intensity={isLight ? 0.2 : 0.4}
+        color={isLight ? "#0D9488" : "#00D4CC"}
       />
 
       {/* Environment */}
       <RoomVolume config={room} />
       <ContactShadows
         position={[room.width_m / 2, 0.01, room.depth_m / 2]}
-        opacity={0.45}
+        opacity={isLight ? 0.15 : 0.35}
         scale={Math.max(room.width_m, room.depth_m) * 2}
         blur={2.5}
         color="#000000"

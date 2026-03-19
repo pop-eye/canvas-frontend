@@ -3,6 +3,7 @@ import { BufferGeometry, Float32BufferAttribute, DoubleSide, Vector3 } from "thr
 import { Line, Html } from "@react-three/drei"
 import type { DeviceNode } from "../../types/canvas"
 import type { DevicePlacement, RoomConfig3D } from "../../types/spatial"
+import { useUIStore } from "../../store/uiStore"
 import {
   computeTessellatedFootprint,
   computeThrowEnvelope,
@@ -47,6 +48,7 @@ interface Props {
 }
 
 export function ProjectorThrow({ node, placement, room }: Props) {
+  const theme = useUIStore((s) => s.theme)
   // Tessellated primary footprint — each grid ray finds its own surface
   const tess = useMemo(
     () => computeTessellatedFootprint(node, placement, room),
@@ -165,8 +167,8 @@ export function ProjectorThrow({ node, placement, room }: Props) {
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 10,
-            color: "#F59E0B",
-            background: "rgba(10,10,11,0.82)",
+            color: theme === "light" ? "#D97706" : "#F59E0B",
+            background: theme === "light" ? "rgba(255,255,255,0.85)" : "rgba(10,10,11,0.82)",
             padding: "2px 6px",
             border: "1px solid #F59E0B40",
             whiteSpace: "nowrap",

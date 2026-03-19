@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "framer-motion"
 import { Sidebar } from "./Sidebar"
@@ -13,7 +13,7 @@ import { ToastContainer } from "../ui/Toast"
 import { useUIStore } from "../../store/uiStore"
 import { useCanvasStore } from "../../store/canvasStore"
 import { saveRig, loadRig } from "../../utils/rigFile"
-import { PanelLeft, Trash2, Undo2, LayoutDashboard, Save, FolderOpen, FileText } from "lucide-react"
+import { PanelLeft, Trash2, Undo2, LayoutDashboard, Save, FolderOpen, FileText, Sun, Moon } from "lucide-react"
 
 const queryClient = new QueryClient()
 
@@ -26,11 +26,18 @@ export function AppShell() {
 }
 
 function AppShellInner() {
-  const { sidebarOpen, toggleSidebar, addToast, viewMode } = useUIStore()
+  const { sidebarOpen, toggleSidebar, addToast, viewMode, theme, toggleTheme } = useUIStore()
   const { selectedNodeId, clearCanvas, undo, roomConfig } = useCanvasStore()
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [printOpen, setPrintOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Initialize theme on mount
+  useEffect(() => {
+    if (theme === "light") {
+      document.documentElement.classList.add("light")
+    }
+  }, [])
 
   async function handleLoadRig(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -96,6 +103,13 @@ function AppShellInner() {
           title="Clear canvas"
           icon={<Trash2 size={13} />}
           label="Clear"
+        />
+        <Divider />
+        <TBtn 
+          onClick={toggleTheme} 
+          title="Toggle light/dark mode" 
+          icon={theme === "light" ? <Moon size={13} /> : <Sun size={13} />} 
+          label={theme === "light" ? "Dark" : "Light"} 
         />
       </div>
 

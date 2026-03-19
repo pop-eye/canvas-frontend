@@ -17,6 +17,22 @@
   --signal-other: #6B7280;
 }
 
+:root.light {
+  --bg: #F3F4F6;
+  --panel: #FFFFFF;
+  --border: #E5E7EB;
+  --accent: #0D9488;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --signal-video: #D97706;
+  --signal-audio: #059669;
+  --signal-data: #2563EB;
+  --signal-control: #7C3AED;
+  --signal-power: #DC2626;
+  --signal-av: #EA580C;
+  --signal-other: #4B5563;
+}
+
 * {
   box-sizing: border-box;
 }
