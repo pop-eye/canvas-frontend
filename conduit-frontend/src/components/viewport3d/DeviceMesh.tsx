@@ -6,8 +6,7 @@ import type { DeviceNode } from "../../types/canvas"
 import type { DevicePlacement } from "../../types/spatial"
 import { useCanvasStore } from "../../store/canvasStore"
 import { useUIStore } from "../../store/uiStore"
-import { DeviceMeshByCategory } from "./DeviceMeshByCategory"
-import { PortIndicator3D } from "./PortIndicator3D"
+import { ProceduralDeviceMesh } from "./ProceduralDeviceMesh"
 import { getCategoryGeo, deriveSize } from "../../utils/deviceGeometry"
 import { deviceName } from "../../conduit/device"
 
@@ -79,9 +78,7 @@ export function DeviceMesh({ node, placement }: Props) {
       onPointerOut={() => setHovered(false)}
       onPointerUp={() => setDraggingDevice(false)}
     >
-      <DeviceMeshByCategory device={device} isSelected={isSelected} hovered={hovered} size={size} />
-
-      <PortIndicator3D device={device} deviceSize={size} />
+      <ProceduralDeviceMesh device={device} isSelected={isSelected} hovered={hovered} />
 
       {isSelected && (
         <mesh>
