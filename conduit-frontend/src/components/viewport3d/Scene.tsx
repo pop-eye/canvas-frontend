@@ -76,7 +76,7 @@ export function Scene() {
 
       {/* Projector throw visualisations (world-space, one per projection device) */}
       {nodes
-        .filter(n => n.data.record.category === "projection")
+        .filter(n => n.data.device.category === "projector")
         .map(node => {
           const placement = placements[node.data.instanceId]
           if (!placement) return null

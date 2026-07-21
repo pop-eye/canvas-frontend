@@ -1,11 +1,13 @@
-import { EquipmentCategory, ALL_CATEGORIES, CATEGORY_LABELS } from "../../types/api"
+import type { DeviceCategory } from "../../conduit/types"
+import { categoryLabel } from "../../conduit/category"
 
 interface CategoryFilterProps {
-  selected: EquipmentCategory | ""
-  onChange: (category: EquipmentCategory | "") => void
+  categories: DeviceCategory[]
+  selected: DeviceCategory | ""
+  onChange: (category: DeviceCategory | "") => void
 }
 
-export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
+export function CategoryFilter({ categories, selected, onChange }: CategoryFilterProps) {
   return (
     <div className="flex flex-wrap gap-1">
       <button
@@ -19,7 +21,7 @@ export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
       >
         All
       </button>
-      {ALL_CATEGORIES.map((cat) => (
+      {categories.map((cat) => (
         <button
           key={cat}
           onClick={() => onChange(cat === selected ? "" : cat)}
@@ -29,8 +31,9 @@ export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
             color: selected === cat ? "#0A0A0B" : "var(--text-secondary)",
             fontFamily: "'JetBrains Mono', monospace",
           }}
+          title={categoryLabel(cat)}
         >
-          {CATEGORY_LABELS[cat].replace(/\s*\(.*\)/, "").substring(0, 10)}
+          {categoryLabel(cat)}
         </button>
       ))}
     </div>

@@ -9,7 +9,7 @@ import {
   OnEdgesChange,
 } from "@xyflow/react"
 import { v4 as uuidv4 } from "uuid"
-import { EquipmentRecord } from "../types/api"
+import type { ConduitDevice } from "../conduit/types"
 import { DeviceNode, ConnectionEdge, RoomConfig } from "../types/canvas"
 import { DevicePlacement, MountPosition, RoomConfig3D } from "../types/spatial"
 
@@ -29,7 +29,7 @@ interface CanvasStore {
   roomConfig3D: RoomConfig3D | null
   undoStack: CanvasSnapshot[]
 
-  addNode: (record: EquipmentRecord, position: XYPosition) => void
+  addNode: (device: ConduitDevice, deviceId: string, position: XYPosition) => string
   duplicateNode: (id: string) => void
   removeNode: (id: string) => void
   selectNode: (id: string | null) => void
@@ -42,10 +42,18 @@ interface CanvasStore {
   setRoomConfig: (config: RoomConfig) => void
   updateNodeLabel: (id: string, label: string) => void
   loadRig: (nodes: DeviceNode[], edges: ConnectionEdge[], roomConfig: RoomConfig | null) => void
+  /** Restore a full project (nodes, edges, room, 3D placements). */
+  loadProject: (p: {
+    nodes: DeviceNode[]
+    edges: ConnectionEdge[]
+    roomConfig: RoomConfig | null
+    roomConfig3D: RoomConfig3D | null
+    placements: Record<string, DevicePlacement>
+  }) => void
   // 3D
   setPlacement: (instanceId: string, placement: Partial<DevicePlacement>) => void
   setRoomConfig3D: (config: Partial<RoomConfig3D>) => void
-  initPlacement: (instanceId: string, record: EquipmentRecord) => void
+  initPlacement: (instanceId: string, device: ConduitDevice) => void
 }
 
 function snapshot(state: { nodes: DeviceNode[]; edges: ConnectionEdge[] }): CanvasSnapshot {
@@ -59,43 +67,54 @@ const DEFAULT_ROOM3D: RoomConfig3D = {
   venueName: "Untitled Venue",
 }
 
+const RACK_CATEGORIES = new Set([
+  "media-server", "network-switch", "network-router", "network-gateway",
+  "video-switcher", "video-scaler", "video-converter", "video-matrix",
+  "video-capture", "video-encoder", "video-decoder", "led-processor",
+  "audio-processor", "audio-interface", "power-distribution", "ups",
+  "intercom-matrix", "rf-distribution", "antenna-combiner",
+])
+const TRUSS_CATEGORIES = new Set([
+  "lighting-fixture", "led-fixture", "audio-loudspeaker", "audio-monitor",
+])
+const TABLE_CATEGORIES = new Set([
+  "control-system", "show-controller", "audio-console", "lighting-console",
+  "computer", "media-player", "camera",
+])
+
 function defaultPlacement(
   instanceId: string,
-  record: EquipmentRecord,
+  device: ConduitDevice,
   roomConfig3D: RoomConfig3D | null
 ): DevicePlacement {
   const room = roomConfig3D ?? DEFAULT_ROOM3D
-  const W = room.width_m
-  const D = room.depth_m
+  const cx = room.width_m / 2
+  const cz = room.depth_m / 2
   const H = room.height_m
-  const cx = W / 2
-  const cz = D / 2
-  const ff = record.metadata?.physical?.form_factor ?? ""
-  const cat = record.category ?? ""
+  const ff = device.form_factor ?? ""
+  const cat = device.category ?? ""
 
   let mounted: MountPosition = "floor"
   let y = 0
 
-  if (
-    ff === "rackmount" ||
-    cat === "media_server" ||
-    cat === "networking" ||
-    cat === "power_distribution"
-  ) {
+  if (ff === "rackmount" || RACK_CATEGORIES.has(cat)) {
     mounted = "rack"
     y = 0.8
-  } else if (
-    ff === "flown" ||
-    ff === "truss" ||
-    cat === "lighting" ||
-    cat === "audio_amplified" ||
-    cat === "audio_passive"
-  ) {
+  } else if (ff === "truss-mount" || ff === "ceiling-mount" || TRUSS_CATEGORIES.has(cat)) {
     mounted = "truss"
     y = H - 0.5
-  } else if (ff === "desktop" || cat === "control") {
+  } else if (ff === "desktop" || TABLE_CATEGORIES.has(cat)) {
     mounted = "table"
     y = 0.9
+  } else if (ff === "wall-mount" || cat === "display" || cat === "projector") {
+    // displays hang on the front wall; projectors default to ceiling
+    if (cat === "projector") {
+      mounted = "ceiling"
+      y = H - 0.5
+    } else {
+      mounted = "wall-front"
+      y = 1.5
+    }
   }
 
   return {
@@ -117,26 +136,22 @@ export const useCanvasStore = create<CanvasStore>()(
       roomConfig3D: null,
       undoStack: [],
 
-      addNode: (record, position) => {
+      addNode: (device, deviceId, position) => {
         const state = get()
         const instanceId = uuidv4()
         const newNode: DeviceNode = {
           id: instanceId,
           type: "device",
           position,
-          data: {
-            record,
-            instanceId,
-          },
+          data: { device, deviceId, instanceId },
         }
-        // Create default 3D placement
-        const room3D = state.roomConfig3D
-        const placement = defaultPlacement(instanceId, record, room3D)
+        const placement = defaultPlacement(instanceId, device, state.roomConfig3D)
         set({
           undoStack: [snapshot(state), ...state.undoStack].slice(0, MAX_UNDO_STACK),
           nodes: [...state.nodes, newNode],
           placements: { ...state.placements, [instanceId]: placement },
         })
+        return instanceId
       },
 
       duplicateNode: (id) => {
@@ -154,7 +169,7 @@ export const useCanvasStore = create<CanvasStore>()(
         const srcPlacement = state.placements[id]
         const newPlacement = srcPlacement
           ? { ...srcPlacement, instanceId: newId }
-          : defaultPlacement(newId, source.data.record, state.roomConfig3D)
+          : defaultPlacement(newId, source.data.device, state.roomConfig3D)
         set({
           undoStack: [snapshot(state), ...state.undoStack].slice(0, MAX_UNDO_STACK),
           nodes: [...state.nodes, newNode],
@@ -239,6 +254,18 @@ export const useCanvasStore = create<CanvasStore>()(
         set({ nodes, edges, roomConfig, selectedNodeId: null, undoStack: [] })
       },
 
+      loadProject: (p) => {
+        set({
+          nodes: p.nodes ?? [],
+          edges: p.edges ?? [],
+          roomConfig: p.roomConfig ?? null,
+          roomConfig3D: p.roomConfig3D ?? null,
+          placements: p.placements ?? {},
+          selectedNodeId: null,
+          undoStack: [],
+        })
+      },
+
       setPlacement: (instanceId, update) =>
         set((state) => ({
           placements: {
@@ -256,16 +283,18 @@ export const useCanvasStore = create<CanvasStore>()(
           roomConfig3D: { ...(state.roomConfig3D ?? DEFAULT_ROOM3D), ...config },
         })),
 
-      initPlacement: (instanceId, record) => {
+      initPlacement: (instanceId, device) => {
         const room3D = get().roomConfig3D
-        const placement = defaultPlacement(instanceId, record, room3D)
+        const placement = defaultPlacement(instanceId, device, room3D)
         set((state) => ({
           placements: { ...state.placements, [instanceId]: placement },
         }))
       },
     }),
     {
-      name: "conduit-canvas-v1",
+      // v2: conduit/v1 device model. Old v1 (scraper EquipmentRecord) state is
+      // incompatible and intentionally dropped by the new key.
+      name: "conduit-canvas-v2",
       partialize: (state) => ({
         nodes: state.nodes,
         edges: state.edges,

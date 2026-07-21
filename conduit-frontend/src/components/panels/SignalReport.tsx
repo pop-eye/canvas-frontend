@@ -1,5 +1,7 @@
 import { useCanvasStore } from "../../store/canvasStore"
 import { portColourHex } from "../../utils/portColour"
+import { deviceName } from "../../conduit/device"
+import { signalLabel } from "../../conduit/signalType"
 
 interface SignalReportProps {
   nodeId: string
@@ -40,7 +42,7 @@ export function SignalReport({ nodeId }: SignalReportProps) {
         const otherNodeId = isSource ? edge.target : edge.source
         const otherNode = nodes.find((n) => n.id === otherNodeId)
         const otherName = otherNode
-          ? (otherNode.data.label ?? otherNode.data.record.name)
+          ? (otherNode.data.label ?? deviceName(otherNode.data.device))
           : "Unknown"
 
         const data = edge.data
@@ -74,8 +76,8 @@ export function SignalReport({ nodeId }: SignalReportProps) {
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-0.5">
-                <span style={{ color: portColourHex(signalType), fontSize: 10 }}>
-                  {signalType}
+                <span style={{ color: portColourHex(signalType), fontSize: 10 }} title={signalType}>
+                  {signalLabel(signalType)}
                 </span>
                 <span
                   className="text-[9px] px-1 rounded-[1px]"

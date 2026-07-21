@@ -7,6 +7,8 @@ import {
   calcPortOverloads,
 } from "../../utils/graphAnalysis"
 import { portColourHex } from "../../utils/portColour"
+import { deviceName } from "../../conduit/device"
+import { signalLabel } from "../../conduit/signalType"
 
 interface DeviceAnalysisProps {
   nodeId: string
@@ -18,7 +20,7 @@ export function DeviceAnalysis({ nodeId }: DeviceAnalysisProps) {
   const { paths, cables, portOverloads, nodeName } = useMemo(() => {
     const nodeMap = buildNodeMap(nodes)
     const node = nodeMap.get(nodeId)
-    const nodeName = node ? (node.data.label ?? node.data.record.name) : "?"
+    const nodeName = node ? (node.data.label ?? deviceName(node.data.device)) : "?"
 
     // Downstream signal paths
     const paths = traceDownstreamPaths(nodeId, nodeMap, edges)
@@ -122,7 +124,7 @@ export function DeviceAnalysis({ nodeId }: DeviceAnalysisProps) {
             const nodeMap = buildNodeMap(nodes)
             const steps = path.nodeIds.map(id => {
               const n = nodeMap.get(id)
-              return n ? (n.data.label ?? n.data.record.name) : id
+              return n ? (n.data.label ?? deviceName(n.data.device)) : id
             })
             const hasLatency = path.totalLatencyMs > 0
             const signalType = path.signalTypes[0] ?? "other"
@@ -137,8 +139,8 @@ export function DeviceAnalysis({ nodeId }: DeviceAnalysisProps) {
                     className="w-1.5 h-1.5 rounded-full shrink-0"
                     style={{ background: portColourHex(signalType) }}
                   />
-                  <span style={{ color: portColourHex(signalType), fontSize: 9 }}>
-                    {signalType}
+                  <span style={{ color: portColourHex(signalType), fontSize: 9 }} title={signalType}>
+                    {signalLabel(signalType)}
                   </span>
                   {hasLatency && (
                     <span className="ml-auto text-[9px]" style={{ color: "var(--text-secondary)" }}>

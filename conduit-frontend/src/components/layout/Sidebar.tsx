@@ -1,8 +1,12 @@
 import { EquipmentLibrary } from "../library/EquipmentLibrary"
-import { useStats } from "../../hooks/useEquipment"
+import { useDeviceIndex } from "../../conduit/useDevices"
+import { useCustomDeviceStore } from "../../conduit/customDevices"
 
 export function Sidebar() {
-  const { data: stats } = useStats()
+  const { data } = useDeviceIndex()
+  const customCount = useCustomDeviceStore((s) => s.entries.length)
+  const catalogCount = data?.index.count ?? data?.index.devices.length
+  const total = catalogCount != null ? catalogCount + customCount : undefined
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -14,14 +18,11 @@ export function Sidebar() {
           className="text-xs font-medium uppercase tracking-widest"
           style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}
         >
-          Equipment Library
+          Device Library
         </span>
-        {stats && (
-          <span
-            className="text-xs"
-            style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            {stats.total} devices
+        {total != null && (
+          <span className="text-xs" style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>
+            {total} devices
           </span>
         )}
       </div>

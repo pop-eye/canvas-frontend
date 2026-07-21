@@ -8,37 +8,34 @@ const PositionSchema = z.object({ x: z.number(), y: z.number() })
 
 const NodeDataSchema = z.object({
   instanceId: z.string(),
+  deviceId: z.string(),
   label: z.string().optional(),
-  record: z.object({
-    id: z.string(),
-    name: z.string(),
-    manufacturer: z.string(),
-    model: z.string(),
-    category: z.string(),
-    confidence_score: z.number(),
-    needs_review: z.boolean(),
-    metadata: z.record(z.string(), z.unknown()),
-    connectors: z.array(z.record(z.string(), z.unknown())).optional(),
-    schema_version: z.string().optional(),
-    scraped_at: z.string().optional(),
-    datasheet_url: z.string().nullable().optional(),
-  }),
-})
+  device: z
+    .object({
+      schema_version: z.string(),
+      manufacturer: z.string(),
+      model: z.string(),
+      category: z.string(),
+      ports: z.array(z.record(z.string(), z.unknown())),
+    })
+    .loose(),
+}).loose()
 
 const DeviceNodeSchema = z.object({
   id: z.string(),
   type: z.string(),
   position: PositionSchema,
   data: NodeDataSchema,
-})
+}).loose()
 
 const EdgeDataSchema = z.object({
   sourcePortId: z.string().optional(),
   targetPortId: z.string().optional(),
   signalType: z.string().optional(),
+  severity: z.string().optional(),
   compatible: z.boolean().optional(),
   warning: z.string().optional(),
-})
+}).loose()
 
 const ConnectionEdgeSchema = z.object({
   id: z.string(),
@@ -57,7 +54,7 @@ const RoomConfigSchema = z.object({
 })
 
 const ConduitFileSchema = z.object({
-  version: z.literal(1),
+  version: z.literal(2),
   savedAt: z.string(),
   roomConfig: RoomConfigSchema.nullable(),
   nodes: z.array(DeviceNodeSchema),
@@ -73,7 +70,7 @@ export function saveRig() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const file: any = {
-    version: 1,
+    version: 2,
     savedAt: new Date().toISOString(),
     roomConfig,
     nodes,

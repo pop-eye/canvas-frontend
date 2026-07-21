@@ -10,6 +10,7 @@ import { RackView } from "./RackView"
 import { ConduitCanvas } from "../canvas/ConduitCanvas"
 import { Viewport3D } from "../viewport3d/Viewport3D"
 import { ToastContainer } from "../ui/Toast"
+import { UserMenu } from "../cloud/UserMenu"
 import { useUIStore } from "../../store/uiStore"
 import { useCanvasStore } from "../../store/canvasStore"
 import { saveRig, loadRig } from "../../utils/rigFile"
@@ -105,12 +106,14 @@ function AppShellInner() {
           label="Clear"
         />
         <Divider />
-        <TBtn 
-          onClick={toggleTheme} 
-          title="Toggle light/dark mode" 
-          icon={theme === "light" ? <Moon size={13} /> : <Sun size={13} />} 
-          label={theme === "light" ? "Dark" : "Light"} 
+        <TBtn
+          onClick={toggleTheme}
+          title="Toggle light/dark mode"
+          icon={theme === "light" ? <Moon size={13} /> : <Sun size={13} />}
+          label={theme === "light" ? "Dark" : "Light"}
         />
+        <Divider />
+        <UserMenu />
       </div>
 
       {/* Main content */}

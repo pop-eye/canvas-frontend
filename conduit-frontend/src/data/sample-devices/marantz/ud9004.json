@@ -1,0 +1,250 @@
+{
+  "schema_version": "conduit/v1",
+  "manufacturer": "Marantz",
+  "model": "UD9004",
+  "category": "media-player",
+  "subcategory": "Universal Blu-ray/SACD Player",
+  "description": "Flagship universal player supporting Blu-ray, SACD, DVD, and various audio/video formats, featuring Realta Optix HQV video processing and audiophile-grade analogue audio circuitry.",
+  "form_factor": "desktop",
+  "dimensions": {
+    "width_mm": 440,
+    "height_mm": 164,
+    "depth_mm": 409
+  },
+  "weight_kg": 19.2,
+  "power": {
+    "max_wattage": 88,
+    "typical_wattage": 88,
+    "connector_type": "iec-c13"
+  },
+  "ports": [
+    {
+      "id": "in_1",
+      "label": "Composite",
+      "signal_type": "video/composite",
+      "connector_type": "bnc",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 1
+    },
+    {
+      "id": "in_2",
+      "label": "S-Video",
+      "signal_type": "video/svideo",
+      "connector_type": "bnc",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 2
+    },
+    {
+      "id": "in_3",
+      "label": "Component",
+      "signal_type": "video/component",
+      "connector_type": "bnc",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 3
+    },
+    {
+      "id": "in_4",
+      "label": "HDMI",
+      "signal_type": "video/hdmi",
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "count": 2,
+      "panel_side": "rear",
+      "panel_position": 4
+    },
+    {
+      "id": "in_5",
+      "label": "7.1ch Analogue Out",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "bnc",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 5
+    },
+    {
+      "id": "in_6",
+      "label": "2ch Analogue Out",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "bnc",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 6
+    },
+    {
+      "id": "in_7",
+      "label": "XLR Analogue Out (L/R)",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "xlr-3m",
+      "direction": "in",
+      "count": 2,
+      "panel_side": "rear",
+      "panel_position": 7
+    },
+    {
+      "id": "in_8",
+      "label": "Digital Coax Out",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "bnc",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 8
+    },
+    {
+      "id": "in_9",
+      "label": "Digital Optical Out",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 9
+    },
+    {
+      "id": "in_10",
+      "label": "SD Card Reader",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 10
+    },
+    {
+      "id": "in_11",
+      "label": "USB",
+      "signal_type": "network/usb/2.0",
+      "connector_type": "usb-a",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 11
+    },
+    {
+      "id": "in_12",
+      "label": "Ethernet",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 12
+    },
+    {
+      "id": "in_13",
+      "label": "Remote Control Bus In",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 13
+    },
+    {
+      "id": "in_14",
+      "label": "Remote Control Bus Out",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 14
+    },
+    {
+      "id": "in_15",
+      "label": "Flasher In",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 15
+    },
+    {
+      "id": "in_16",
+      "label": "Flasher Out",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 16
+    },
+    {
+      "id": "in_17",
+      "label": "RS-232C",
+      "signal_type": "control/rs232",
+      "connector_type": "db9",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 17
+    },
+    {
+      "id": "net_18",
+      "label": "10/100 Ethernet",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_19",
+      "label": "RS-232",
+      "signal_type": "control/rs232",
+      "connector_type": "db9",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_20",
+      "label": "Remote Control Bus",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_21",
+      "label": "Flasher",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "pwr_22",
+      "label": "POWER",
+      "signal_type": "power/mains/ac/universal",
+      "connector_type": "iec-c13",
+      "direction": "power-in"
+    }
+  ],
+  "protocols": [
+    {
+      "name": "RS-232"
+    },
+    {
+      "name": "Remote Control Bus"
+    },
+    {
+      "name": "Flasher"
+    }
+  ],
+  "datasheet_url": "https://www.marantz.com/on/demandware.static/-/Library-Sites-marantz_europe_shared/default/dwf71eafcc/archive-downloads/ud9004---universal-blu-ray-hd-player.pdf",
+  "tags": [
+    "Blu-ray",
+    "SACD",
+    "DVD",
+    "HD Audio",
+    "Audiophile"
+  ],
+  "notes": "Features dedicated boards for XLR and main cinch outputs to prevent crosstalk. Includes Marantz HDAM-SA2 modules. Supports BD-Live with 1Gb internal memory. DLNA and UPnP certified for network streaming.",
+  "profile_meta": {
+    "created_at": "2026-05-08T20:32:58.011Z",
+    "updated_at": "2026-05-08T20:32:58.011Z",
+    "created_by": "conduit-scraper",
+    "source": "scraper",
+    "verified": false,
+    "confidence": "high",
+    "verification_method": "datasheet",
+    "license": "CC-BY-SA-4.0",
+    "cla_signed": false
+  },
+  "sources": [
+    {
+      "url": "https://www.marantz.com/on/demandware.static/-/Library-Sites-marantz_europe_shared/default/dwf71eafcc/archive-downloads/ud9004---universal-blu-ray-hd-player.pdf",
+      "type": "datasheet",
+      "retrieved_date": "2026-05-08"
+    }
+  ]
+}

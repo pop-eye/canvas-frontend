@@ -1,38 +1,8 @@
 import { useCallback } from "react"
 import { DeviceNode, ConnectionEdge } from "../types/canvas"
-import { ConnectorPort } from "../types/api"
-import { checkCompatibility, CompatibilityResult } from "../utils/compatibility"
+import { checkPortCompatibility, type CompatibilityResult } from "../conduit/compatibility"
+import { parseHandleId, resolvePort } from "../conduit/device"
 import { isPortAtCapacity } from "../utils/graphAnalysis"
-
-// Handle ID format: `${direction}-${protocol}-${index}` e.g. "input-HDMI-0"
-function parseHandleId(
-  handleId: string,
-  node: DeviceNode
-): ConnectorPort | null {
-  const parts = handleId.split("-")
-  if (parts.length < 3) return null
-  const direction = parts[0] as "input" | "output"
-  const indexStr = parts[parts.length - 1]
-  const protocol = parts.slice(1, -1).join("-")
-  const index = parseInt(indexStr, 10)
-
-  const ports =
-    direction === "input"
-      ? node.data.record.metadata.connectivity.inputs
-      : node.data.record.metadata.connectivity.outputs
-
-  // Find by protocol
-  let count = 0
-  for (const port of ports) {
-    if (port.protocol === protocol) {
-      if (count === index) return port
-      count++
-    }
-  }
-
-  // Fallback: by flat index
-  return ports[index] ?? null
-}
 
 export function useCompatibility() {
   const validateConnection = useCallback(
@@ -43,51 +13,41 @@ export function useCompatibility() {
       targetHandleId: string,
       nodes: DeviceNode[],
       edges: ConnectionEdge[] = []
-    ): CompatibilityResult => {
+    ): CompatibilityResult & { sourcePortId?: string; targetPortId?: string } => {
       const sourceNode = nodes.find((n) => n.id === sourceNodeId)
       const targetNode = nodes.find((n) => n.id === targetNodeId)
-
       if (!sourceNode || !targetNode) {
-        return { compatible: false, reason: "Node not found" }
+        return { compatible: false, severity: "error", reason: "Device not found" }
       }
 
-      // Prevent connecting output→output or input→input
-      const srcIsOutput = sourceHandleId.startsWith("output")
-      const tgtIsInput = targetHandleId.startsWith("input")
-
-      if (!srcIsOutput || !tgtIsInput) {
-        return {
-          compatible: false,
-          reason: srcIsOutput
-            ? "Cannot connect two inputs — connect from an output to an input"
-            : "Cannot connect two outputs — connect from an output to an input",
-        }
+      const srcHandle = parseHandleId(sourceHandleId)
+      const tgtHandle = parseHandleId(targetHandleId)
+      // Enforce output → input at the handle level.
+      if (!srcHandle || srcHandle.role !== "out") {
+        return { compatible: false, severity: "error", reason: "Start the connection from an output" }
+      }
+      if (!tgtHandle || tgtHandle.role !== "in") {
+        return { compatible: false, severity: "error", reason: "Connect into an input" }
       }
 
-      // Port capacity check — block if the port group is already saturated
-      const srcCapacity = isPortAtCapacity(sourceNodeId, sourceHandleId, "output", nodes, edges)
-      if (srcCapacity?.overloaded) {
-        return {
-          compatible: false,
-          reason: `${srcCapacity.protocol} output at capacity (${srcCapacity.used}/${srcCapacity.capacity} used)`,
-        }
-      }
-      const tgtCapacity = isPortAtCapacity(targetNodeId, targetHandleId, "input", nodes, edges)
-      if (tgtCapacity?.overloaded) {
-        return {
-          compatible: false,
-          reason: `${tgtCapacity.protocol} input at capacity (${tgtCapacity.used}/${tgtCapacity.capacity} used)`,
-        }
-      }
-
-      const sourcePort = parseHandleId(sourceHandleId, sourceNode)
-      const targetPort = parseHandleId(targetHandleId, targetNode)
-
+      const sourcePort = resolvePort(sourceNode.data.device, srcHandle.portId)
+      const targetPort = resolvePort(targetNode.data.device, tgtHandle.portId)
       if (!sourcePort || !targetPort) {
-        return { compatible: true } // Unknown port — allow but don't validate
+        return { compatible: false, severity: "error", reason: "Port not found" }
       }
 
-      return checkCompatibility(sourcePort, targetPort)
+      // Port capacity — block if a physical connector group is already saturated.
+      const srcCap = isPortAtCapacity(sourceNodeId, srcHandle.portId, "out", nodes, edges)
+      if (srcCap?.overloaded) {
+        return { compatible: false, severity: "error", reason: `${srcCap.protocol} output at capacity (${srcCap.used}/${srcCap.capacity})` }
+      }
+      const tgtCap = isPortAtCapacity(targetNodeId, tgtHandle.portId, "in", nodes, edges)
+      if (tgtCap?.overloaded) {
+        return { compatible: false, severity: "error", reason: `${tgtCap.protocol} input at capacity (${tgtCap.used}/${tgtCap.capacity})` }
+      }
+
+      const result = checkPortCompatibility(sourcePort, targetPort)
+      return { ...result, sourcePortId: sourcePort.id, targetPortId: targetPort.id }
     },
     []
   )

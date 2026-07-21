@@ -1,5 +1,4 @@
 import { useState, useRef, useMemo } from "react"
-import type { ReactElement } from "react"
 import { ThreeEvent } from "@react-three/fiber"
 import { Html, useCursor } from "@react-three/drei"
 import { Vector3 } from "three"
@@ -7,53 +6,19 @@ import type { DeviceNode } from "../../types/canvas"
 import type { DevicePlacement } from "../../types/spatial"
 import { useCanvasStore } from "../../store/canvasStore"
 import { useUIStore } from "../../store/uiStore"
-import { DeviceMeshByCategory } from "./DeviceMeshByCategory"
-import { PortIndicator3D } from "./PortIndicator3D"
+import { ProceduralDeviceMesh } from "./ProceduralDeviceMesh"
 import { getCategoryGeo, deriveSize } from "../../utils/deviceGeometry"
+import { deviceName } from "../../conduit/device"
 
 interface Props {
   node: DeviceNode
   placement: DevicePlacement
 }
 
-/** Semi-transparent projection/audio/lighting coverage cone or arc */
-function CoverageVolume({ record, size }: { record: import("../../types/api").EquipmentRecord; size: [number, number, number] }) {
-  const env = record.metadata?.environment
-  const audio = record.metadata?.audio
-  const light = record.metadata?.lighting
-
-  const cones: ReactElement[] = []
-
-  // Audio coverage arc
-  if (env?.coverage_degrees && audio) {
-    const radius = env.max_distance_m ?? 6
-    const angle = (env.coverage_degrees * Math.PI) / 180
-    cones.push(
-      <mesh key="coverage" position={[0, 0, radius / 2]}>
-        <coneGeometry args={[radius * Math.tan(angle / 2), radius, 24, 1, true]} />
-        <meshStandardMaterial color="#00D4CC" opacity={0.065} transparent depthWrite={false} side={2} />
-      </mesh>
-    )
-  }
-
-  // Lighting beam
-  if (light?.beam_angle_degrees) {
-    const length = 6
-    const halfAngle = (light.beam_angle_degrees * Math.PI) / 360
-    cones.push(
-      <mesh key="beam" position={[0, -length / 2 - size[1] / 2, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[length * Math.tan(halfAngle), length, 16, 1, true]} />
-        <meshStandardMaterial color="#FBBF24" opacity={0.06} transparent depthWrite={false} side={2} />
-      </mesh>
-    )
-  }
-
-  return <>{cones}</>
-}
-
 export function DeviceMesh({ node, placement }: Props) {
   const { selectNode, selectedNodeId, setPlacement } = useCanvasStore()
   const { setDraggingDevice } = useUIStore()
+  const device = node.data.device
   const isSelected = selectedNodeId === node.id
   const [hovered, setHovered] = useState(false)
   const groupRef = useRef<any>(null)
@@ -63,8 +28,8 @@ export function DeviceMesh({ node, placement }: Props) {
 
   useCursor(hovered)
 
-  const geo = getCategoryGeo(node.data.record.category)
-  const size = useMemo(() => deriveSize(node.data.record, geo.defaultSize), [node.data.record, geo.defaultSize])
+  const geo = getCategoryGeo(device.category)
+  const size = useMemo(() => deriveSize(device, geo.defaultSize), [device, geo.defaultSize])
 
   const { x, y, z } = placement.position3d
 
@@ -89,19 +54,16 @@ export function DeviceMesh({ node, placement }: Props) {
     if (Math.abs(dx) > 0.05 || Math.abs(dz) > 0.05) isDragging.current = true
     if (!isDragging.current) return
 
-    const isTruss = placement.mounted === "truss" || placement.mounted === "ceiling"
-    const newY = isTruss ? posStart.current[1] : posStart.current[1] // Y locked for now
-
     setPlacement(node.data.instanceId, {
       position3d: {
         x: posStart.current[0] + dx,
-        y: newY,
+        y: posStart.current[1], // Y locked during XZ drag
         z: posStart.current[2] + dz,
       },
     })
   }
 
-  const label = node.data.label ?? node.data.record.name
+  const label = node.data.label ?? deviceName(device)
   const theme = useUIStore((s) => s.theme)
 
   return (
@@ -116,16 +78,8 @@ export function DeviceMesh({ node, placement }: Props) {
       onPointerOut={() => setHovered(false)}
       onPointerUp={() => setDraggingDevice(false)}
     >
-      <DeviceMeshByCategory
-        record={node.data.record}
-        isSelected={isSelected}
-        hovered={hovered}
-        size={size}
-      />
+      <ProceduralDeviceMesh device={device} isSelected={isSelected} hovered={hovered} />
 
-      <PortIndicator3D record={node.data.record} deviceSize={size} />
-
-      {/* Selected outline ring */}
       {isSelected && (
         <mesh>
           <boxGeometry args={[size[0] + 0.03, size[1] + 0.03, size[2] + 0.03]} />
@@ -133,17 +87,8 @@ export function DeviceMesh({ node, placement }: Props) {
         </mesh>
       )}
 
-      {/* Coverage visualisation */}
-      <CoverageVolume record={node.data.record} size={size} />
-
-      {/* Label — shown on hover or selection */}
       {(hovered || isSelected) && (
-        <Html
-          center
-          position={[0, size[1] / 2 + 0.12, 0]}
-          distanceFactor={10}
-          style={{ pointerEvents: "none" }}
-        >
+        <Html center position={[0, size[1] / 2 + 0.12, 0]} distanceFactor={10} style={{ pointerEvents: "none" }}>
           <div style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: 11,

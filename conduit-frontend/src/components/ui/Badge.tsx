@@ -33,3 +33,16 @@ export function ConfidenceBadge({ confidence }: { confidence: number }) {
     </Badge>
   )
 }
+
+/** conduit/v1 profile confidence: high / medium / low. */
+export function ConfidenceLevelBadge({ level }: { level?: "high" | "medium" | "low" }) {
+  if (!level) return null
+  const variant = level === "high" ? "green" : level === "medium" ? "amber" : "red"
+  return <Badge variant={variant}>{level}</Badge>
+}
+
+export function VerifiedBadge({ verified }: { verified?: boolean }) {
+  if (verified === true) return <Badge variant="green">verified</Badge>
+  if (verified === false) return <Badge variant="amber">unverified</Badge>
+  return null
+}

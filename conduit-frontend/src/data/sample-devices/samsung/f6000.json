@@ -1,0 +1,91 @@
+{
+  "capabilities": [
+    {
+      "display_technology": "lcd",
+      "hdr_formats": [
+        "HDR10+"
+      ],
+      "native_resolution": {
+        "height_px": 1080,
+        "width_px": 1920
+      },
+      "type": "display"
+    }
+  ],
+  "protocols": [
+    {
+      "name": "Tizen OS",
+      "notes": "Smart TV Operating System"
+    }
+  ],
+  "ports": [
+    {
+      "connector_type": "hdmi-a",
+      "count": 2,
+      "direction": "in",
+      "id": "hdmi-1",
+      "label": "HDMI",
+      "signal_type": "video/hdmi"
+    },
+    {
+      "connector_type": "usb-a",
+      "count": 1,
+      "direction": "in",
+      "id": "usb-1",
+      "label": "USB",
+      "signal_type": "network/usb/2.0"
+    },
+    {
+      "connector_type": "rj45",
+      "count": 1,
+      "direction": "in",
+      "id": "lan-1",
+      "label": "Ethernet (LAN)",
+      "signal_type": "network/ethernet/1g"
+    },
+    {
+      "connector_type": "f-type",
+      "count": 1,
+      "direction": "in",
+      "id": "rf-in",
+      "label": "RF In",
+      "signal_type": "rf/antenna"
+    }
+  ],
+  "category": "display",
+  "control": {
+    "web_ui": true
+  },
+  "description": "Full HD F6000 Smart TV (2025)",
+  "dimensions": {
+    "depth_mm": 73.2,
+    "height_mm": 438.7,
+    "width_mm": 732.9
+  },
+  "manufacturer": "Samsung",
+  "model": "UA32F6000FWXXY",
+  "power": {
+    "frequency_hz": [
+      50,
+      60
+    ],
+    "max_wattage": 65,
+    "standby_wattage": 0.5,
+    "typical_wattage": 36.0,
+    "voltage_v": [
+      220,
+      240
+    ]
+  },
+  "weight_kg": 3.8,
+  "schema_version": "conduit/v1",
+  "sources": [
+    {
+      "url": "https://images.samsung.com/is/content/samsung/assets/au/tvs/product-specs/F6000_FUll_HD_TV_Spec_Sheet.pdf",
+      "type": "datasheet",
+      "title": "Top Features HDR High Dynamic Range helps increase the ratio between the",
+      "retrieved_date": "2026-07-13",
+      "notes": "Discovered via search; source URL: https://images.samsung.com/is/content/samsung/assets/au/tvs/product-specs/F6000_FUll_HD_TV_Spec_Sheet.pdf"
+    }
+  ]
+}
