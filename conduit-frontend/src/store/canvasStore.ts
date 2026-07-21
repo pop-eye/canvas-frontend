@@ -42,6 +42,14 @@ interface CanvasStore {
   setRoomConfig: (config: RoomConfig) => void
   updateNodeLabel: (id: string, label: string) => void
   loadRig: (nodes: DeviceNode[], edges: ConnectionEdge[], roomConfig: RoomConfig | null) => void
+  /** Restore a full project (nodes, edges, room, 3D placements). */
+  loadProject: (p: {
+    nodes: DeviceNode[]
+    edges: ConnectionEdge[]
+    roomConfig: RoomConfig | null
+    roomConfig3D: RoomConfig3D | null
+    placements: Record<string, DevicePlacement>
+  }) => void
   // 3D
   setPlacement: (instanceId: string, placement: Partial<DevicePlacement>) => void
   setRoomConfig3D: (config: Partial<RoomConfig3D>) => void
@@ -244,6 +252,18 @@ export const useCanvasStore = create<CanvasStore>()(
 
       loadRig: (nodes, edges, roomConfig) => {
         set({ nodes, edges, roomConfig, selectedNodeId: null, undoStack: [] })
+      },
+
+      loadProject: (p) => {
+        set({
+          nodes: p.nodes ?? [],
+          edges: p.edges ?? [],
+          roomConfig: p.roomConfig ?? null,
+          roomConfig3D: p.roomConfig3D ?? null,
+          placements: p.placements ?? {},
+          selectedNodeId: null,
+          undoStack: [],
+        })
       },
 
       setPlacement: (instanceId, update) =>
