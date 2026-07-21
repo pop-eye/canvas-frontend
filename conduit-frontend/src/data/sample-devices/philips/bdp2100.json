@@ -1,0 +1,123 @@
+{
+  "schema_version": "conduit/v1",
+  "manufacturer": "Philips",
+  "model": "BDP2100",
+  "category": "media-player",
+  "model_variant": "BDP2100/40",
+  "subcategory": "Blu-ray/DVD Player",
+  "description": "Philips Blu-ray Disc/DVD player with DivX Plus HD support, USB 2.0 Media Link, and DVD video upscaling to 1080p via HDMI. Supports Dolby TrueHD and DTS 2.0.",
+  "form_factor": "desktop",
+  "dimensions": {
+    "width_mm": 310,
+    "height_mm": 39.5,
+    "depth_mm": 217
+  },
+  "weight_kg": 1.02,
+  "power": {
+    "max_wattage": 11,
+    "typical_wattage": 11,
+    "voltage_v": [
+      220,
+      240
+    ],
+    "frequency_hz": [
+      50,
+      60
+    ],
+    "connector_type": "iec-c13"
+  },
+  "ports": [
+    {
+      "id": "in_1",
+      "label": "USB 2.0",
+      "signal_type": "network/usb/2.0",
+      "connector_type": "usb-a",
+      "direction": "in",
+      "panel_side": "front",
+      "panel_position": 1
+    },
+    {
+      "id": "in_2",
+      "label": "HDMI out",
+      "signal_type": "video/hdmi",
+      "connector_type": "usb-a",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 1
+    },
+    {
+      "id": "in_3",
+      "label": "Ethernet",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 2
+    },
+    {
+      "id": "in_4",
+      "label": "Digital coaxial out",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "rear",
+      "panel_position": 3
+    },
+    {
+      "id": "net_5",
+      "label": "10/100 Ethernet",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_6",
+      "label": "HDMI CEC",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "pwr_7",
+      "label": "POWER",
+      "signal_type": "power/mains/ac/universal",
+      "connector_type": "iec-c13",
+      "direction": "power-in"
+    }
+  ],
+  "protocols": [
+    {
+      "name": "HDMI CEC"
+    }
+  ],
+  "datasheet_url": "https://www.documents.philips.com/assets/20231118/fb2f1a45265f4d71a516b0be00bb4672.pdf",
+  "tags": [
+    "Blu-ray",
+    "DVD",
+    "DivX Plus HD",
+    "Upscaling",
+    "USB Media Link",
+    "Dolby TrueHD",
+    "DTS 2.0",
+    "HDMI CEC"
+  ],
+  "notes": "BD-Live requires 1GB USB memory. Firmware upgradeable via USB or online.",
+  "profile_meta": {
+    "created_at": "2026-05-08T20:23:28.123Z",
+    "updated_at": "2026-05-08T20:23:28.123Z",
+    "created_by": "conduit-scraper",
+    "source": "scraper",
+    "verified": false,
+    "confidence": "high",
+    "verification_method": "datasheet",
+    "license": "CC-BY-SA-4.0",
+    "cla_signed": false
+  },
+  "sources": [
+    {
+      "url": "https://www.documents.philips.com/assets/20231118/fb2f1a45265f4d71a516b0be00bb4672.pdf",
+      "type": "datasheet",
+      "retrieved_date": "2026-05-08"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": "conduit/v1",
+  "generated_at": "2026-07-21",
+  "count": 11,
+  "devices": [
+    {
+      "id": "lg/qned70a-43",
+      "path": "lg/qned70a-43.json",
+      "manufacturer": "LG Electronics",
+      "model": "QNED70A",
+      "model_variant": "43",
+      "category": "display",
+      "description": "43 inch LG QNED AI QNED70 4K Smart TV 2025",
+      "port_count": 7,
+      "tags": [
+        "4K, QNED, Smart TV, webOS"
+      ]
+    },
+    {
+      "id": "lg/qned70a-55",
+      "path": "lg/qned70a-55.json",
+      "manufacturer": "LG",
+      "model": "QNED70A",
+      "model_variant": "55QNED70AUA",
+      "category": "display",
+      "description": "55 Inch Class LG QNED AI QNED70A 4K Smart TV",
+      "port_count": 7,
+      "tags": [
+        "4K, Smart TV, QNED, webOS 25, AI Magic Remote, HDR10, HLG, VRR, ALLM, Game Optimizer"
+      ]
+    },
+    {
+      "id": "lg/up870",
+      "path": "lg/up870.json",
+      "manufacturer": "LG",
+      "model": "UP870",
+      "category": "media-player",
+      "subcategory": "4K Ultra-HD Blu-Ray Player",
+      "form_factor": "desktop",
+      "description": "LG UP870 is a 4K Ultra-HD Blu-Ray player with support for 4K and 3D Blu-Ray discs, DVD playback, and HDR10 compatibility. It features 4K upscaling and various video and audio format support.",
+      "port_count": 6,
+      "verified": false,
+      "confidence": "high",
+      "tags": [
+        "4K",
+        "Blu-Ray",
+        "3D",
+        "HDR10",
+        "Upscaling"
+      ]
+    },
+    {
+      "id": "marantz/ud9004",
+      "path": "marantz/ud9004.json",
+      "manufacturer": "Marantz",
+      "model": "UD9004",
+      "category": "media-player",
+      "subcategory": "Universal Blu-ray/SACD Player",
+      "form_factor": "desktop",
+      "description": "Flagship universal player supporting Blu-ray, SACD, DVD, and various audio/video formats, featuring Realta Optix HQV video processing and audiophile-grade analogue audio circuitry.",
+      "port_count": 22,
+      "verified": false,
+      "confidence": "high",
+      "tags": [
+        "Blu-ray",
+        "SACD",
+        "DVD",
+        "HD Audio",
+        "Audiophile"
+      ]
+    },
+    {
+      "id": "optoma/zu607t",
+      "path": "optoma/zu607t.json",
+      "manufacturer": "Optoma",
+      "model": "ZU607T",
+      "category": "projector",
+      "description": "High brightness professional laser projector featuring 6500 lumens, 4K and HDR compatibility and a dust resistant IP6X certified optical engine for 24/7 operational capabilities.",
+      "port_count": 12
+    },
+    {
+      "id": "optoma/zu820t",
+      "path": "optoma/zu820t.json",
+      "manufacturer": "Optoma",
+      "model": "ZU820T",
+      "category": "projector",
+      "description": "High Lumen DuraCore laser projector with motorized zoom and integrated warping and edge blending processor.",
+      "port_count": 13
+    },
+    {
+      "id": "philips/bdp2100",
+      "path": "philips/bdp2100.json",
+      "manufacturer": "Philips",
+      "model": "BDP2100",
+      "model_variant": "BDP2100/40",
+      "category": "media-player",
+      "subcategory": "Blu-ray/DVD Player",
+      "form_factor": "desktop",
+      "description": "Philips Blu-ray Disc/DVD player with DivX Plus HD support, USB 2.0 Media Link, and DVD video upscaling to 1080p via HDMI. Supports Dolby TrueHD and DTS 2.0.",
+      "port_count": 7,
+      "verified": false,
+      "confidence": "high",
+      "tags": [
+        "Blu-ray",
+        "DVD",
+        "DivX Plus HD",
+        "Upscaling",
+        "USB Media Link",
+        "Dolby TrueHD",
+        "DTS 2.0",
+        "HDMI CEC"
+      ]
+    },
+    {
+      "id": "samsung/au9000-55",
+      "path": "samsung/au9000-55.json",
+      "manufacturer": "Samsung",
+      "model": "UN55AU9000PXPA",
+      "model_variant": "WXXY",
+      "category": "display",
+      "form_factor": "wall-mount",
+      "description": "55\" AU9000 Crystal UHD 4K Smart TV (2021)",
+      "port_count": 9
+    },
+    {
+      "id": "samsung/f6000",
+      "path": "samsung/f6000.json",
+      "manufacturer": "Samsung",
+      "model": "UA32F6000FWXXY",
+      "category": "display",
+      "description": "Full HD F6000 Smart TV (2025)",
+      "port_count": 4
+    },
+    {
+      "id": "samsung/qe43q7f2a",
+      "path": "samsung/qe43q7f2a.json",
+      "manufacturer": "Samsung",
+      "model": "QE43Q7F2A",
+      "model_variant": "XXU",
+      "category": "display",
+      "form_factor": "other",
+      "description": "QET 4K Crystal UHD Series Display with ultra-fast Crystal 4K processor and UHD resolution.",
+      "port_count": 4,
+      "tags": [
+        "QLED, 4K, Vision AI, Tizen OS, Matter Hub, SmartThings"
+      ]
+    },
+    {
+      "id": "viewsonic/m2",
+      "path": "viewsonic/m2.json",
+      "manufacturer": "ViewSonic",
+      "model": "M2",
+      "category": "projector",
+      "subcategory": "Smart Theater Projector",
+      "port_count": 9,
+      "verified": false,
+      "confidence": "high",
+      "tags": [
+        "portable",
+        "short throw",
+        "smart"
+      ]
+    }
+  ]
+}

@@ -1,20 +1,21 @@
 import { useMemo } from "react"
-import type { EquipmentRecord } from "../../types/api"
-import { getCategoryGeo, deriveSize } from "../../utils/deviceGeometry"
+import type { ConduitDevice } from "../../conduit/types"
+import { deviceNeedsReview } from "../../conduit/device"
 import { getCategoryMaterial, applySelection } from "../../utils/categoryMaterial"
 
 interface Props {
-  record: EquipmentRecord
+  device: ConduitDevice
   isSelected: boolean
   hovered: boolean
   size: [number, number, number]
 }
 
-export function DeviceMeshByCategory({ record, isSelected, hovered, size }: Props) {
+export function DeviceMeshByCategory({ device, isSelected, hovered, size }: Props) {
+  const needsReview = deviceNeedsReview(device)
   const mat = useMemo(() => {
-    const base = getCategoryMaterial(record.category)
-    return applySelection(base, isSelected, hovered, record.needs_review)
-  }, [record.category, record.needs_review, isSelected, hovered])
+    const base = getCategoryMaterial(device.category)
+    return applySelection(base, isSelected, hovered, needsReview)
+  }, [device.category, needsReview, isSelected, hovered])
 
   const [W, H, D] = size
 

@@ -1,0 +1,157 @@
+{
+  "capabilities": [
+    {
+      "brightness_ansi_lm": 6500,
+      "contrast_ratio_full": 3000000,
+      "display_technology": "dlp-1chip",
+      "keystone_h_degrees": 30,
+      "keystone_v_degrees": 30,
+      "light_source_life_hours": 30000,
+      "light_source_type": "laser-phosphor",
+      "native_resolution": {
+        "height_px": 1200,
+        "width_px": 1920
+      },
+      "throw_ratio_max": 1.92,
+      "throw_ratio_min": 1.2,
+      "type": "display"
+    }
+  ],
+  "ports": [
+    {
+      "connector_type": "hdmi-a",
+      "count": 2,
+      "direction": "in",
+      "id": "hdmi_in_1",
+      "label": "HDMI 1",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "count": 1,
+      "direction": "out",
+      "id": "hdmi_out_1",
+      "label": "HDMI Out",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "de-15",
+      "count": 2,
+      "direction": "in",
+      "id": "vga_in_1",
+      "label": "VGA",
+      "signal_type": "video/vga"
+    },
+    {
+      "connector_type": "rca-composite",
+      "count": 1,
+      "direction": "in",
+      "id": "comp_in_1",
+      "label": "Composite video",
+      "signal_type": "video/composite"
+    },
+    {
+      "connector_type": "trs-3.5mm",
+      "count": 2,
+      "direction": "in",
+      "id": "audio_in_1",
+      "label": "Audio In",
+      "signal_type": "audio/analogue/unbalanced"
+    },
+    {
+      "connector_type": "usb-a",
+      "count": 1,
+      "direction": "out",
+      "id": "usb_pwr_1",
+      "label": "USB-A power",
+      "signal_type": "network/usb/2.0"
+    },
+    {
+      "connector_type": "trs-3.5mm",
+      "count": 1,
+      "direction": "out",
+      "id": "audio_out_1",
+      "label": "Audio Out",
+      "signal_type": "audio/analogue/unbalanced"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "count": 1,
+      "direction": "out",
+      "id": "sync_out_1",
+      "label": "3D sync",
+      "signal_type": "video/3d-sync"
+    },
+    {
+      "connector_type": "phoenix-3.5mm",
+      "count": 1,
+      "direction": "out",
+      "id": "trig_out_1",
+      "label": "12V trigger",
+      "signal_type": "control/gpio/relay"
+    },
+    {
+      "connector_type": "rj45",
+      "count": 1,
+      "direction": "bidirectional",
+      "id": "hdbaset_ctrl_1",
+      "label": "HDBaseT",
+      "signal_type": "video/hdbaset"
+    },
+    {
+      "connector_type": "rj45",
+      "count": 1,
+      "direction": "bidirectional",
+      "id": "rj45_ctrl_1",
+      "label": "RJ45",
+      "signal_type": "network/ethernet/1g"
+    },
+    {
+      "connector_type": "db9",
+      "count": 1,
+      "direction": "bidirectional",
+      "id": "rs232_ctrl_1",
+      "label": "RS232",
+      "signal_type": "control/rs232"
+    }
+  ],
+  "category": "projector",
+  "description": "High brightness professional laser projector featuring 6500 lumens, 4K and HDR compatibility and a dust resistant IP6X certified optical engine for 24/7 operational capabilities.",
+  "dimensions": {
+    "depth_mm": 302,
+    "height_mm": 117,
+    "width_mm": 374
+  },
+  "environment": {
+    "audible_noise_dba": 36,
+    "heat_dissipation_btu_hr": 883,
+    "ip_rating": "IP6X"
+  },
+  "manufacturer": "Optoma",
+  "model": "ZU607T",
+  "power": {
+    "frequency_hz": [
+      50,
+      60
+    ],
+    "max_wattage": 366,
+    "psu_type": "internal",
+    "standby_wattage": 0.5,
+    "typical_wattage": 300,
+    "voltage_v": [
+      100,
+      240
+    ]
+  },
+  "weight_kg": 6.3,
+  "schema_version": "conduit/v1",
+  "sources": [
+    {
+      "url": "https://www.optomaeurope.com/ContentStorage/Documents/a9248a0d-b810-4096-b169-18b7d58c967b.pdf",
+      "type": "third-party",
+      "title": "ZU607T",
+      "retrieved_date": "2026-07-13",
+      "notes": "Discovered via search; source URL: https://www.optomaeurope.com/ContentStorage/Documents/a9248a0d-b810-4096-b169-18b7d58c967b.pdf"
+    }
+  ]
+}

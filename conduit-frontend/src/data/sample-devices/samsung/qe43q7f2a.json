@@ -1,0 +1,165 @@
+{
+  "protocols": [
+    {
+      "name": "HDMI-CEC",
+      "transport": "proprietary",
+      "version": "Anynet+"
+    }
+  ],
+  "tags": [
+    "QLED, 4K, Vision AI, Tizen OS, Matter Hub, SmartThings"
+  ],
+  "capabilities": [
+    {
+      "cpu_cores": 4,
+      "cpu_frequency_ghz": 1.7,
+      "cpu_model": "Cortex A72 1.7GHz Quad-Core CPU",
+      "os": "Tizen 4.0 (VDLinux)",
+      "ram_gb": 2.0,
+      "storage_media_tb": 0.008,
+      "storage_os_gb": 3.88,
+      "type": "compute"
+    },
+    {
+      "brightness_iso_lm": 500,
+      "contrast_ratio_full": 5000,
+      "display_technology": "led-direct",
+      "light_source_type": "other",
+      "native_resolution": {
+        "height_px": 2160,
+        "width_px": 3840
+      },
+      "type": "display"
+    }
+  ],
+  "ports": [
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-1",
+      "label": "HDMI 1",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-2",
+      "label": "HDMI 2",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-3",
+      "label": "HDMI 3",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-4",
+      "label": "HDMI 4",
+      "signal_type": "video/hdmi/2.0"
+    }
+  ],
+  "category": "display",
+  "description": "QET 4K Crystal UHD Series Display with ultra-fast Crystal 4K processor and UHD resolution.",
+  "dimensions": {
+    "depth_mm": 58.42,
+    "height_mm": 558.8,
+    "width_mm": 962.66
+  },
+  "environment": {
+    "humidity_max_percent": 80,
+    "operating_temp_max_c": 40,
+    "operating_temp_min_c": 0
+  },
+  "extensions": {
+    "conduit:unmapped": {
+      "/capabilities/hdr": true
+    }
+  },
+  "form_factor": "other",
+  "manual_url": "https://org.downloadcenter.samsung.com/downloadfile/ContentsFile.aspx?CDSite=UNI_IE&OriginYN=N&ModelType=N&ModelName=QE43Q7F2AU&CttFileID=10762011&CDCttType=PM&VPath=PM%2F202507%2F20250725183213560%2FEN%2FBN81-27185C-640_EUG-H_ROPDVBEUF_EU_ENG_250715.0%2FBN81-27185C-640_EUG-H_ROPDVBEUF_EU_ENG_250715.0%2Fstart_here.html",
+  "manufacturer": "Samsung",
+  "model": "QE43Q7F2A",
+  "model_variant": "XXU",
+  "notes": "Includes One Connect Box with a 5 meter fiber optical cable. Features Motion Rate 240 and 40 Watt 4.2 Channel audio.",
+  "power": {
+    "frequency_hz": [
+      50,
+      60
+    ],
+    "max_wattage": 110,
+    "psu_type": "internal",
+    "standby_wattage": 0.5,
+    "typical_wattage": 80,
+    "voltage_v": [
+      100,
+      240
+    ]
+  },
+  "reliability": {
+    "warranty_years": 3
+  },
+  "weight_kg": 8.39,
+  "schema_version": "conduit/v1",
+  "sources": [
+    {
+      "url": "https://image-us.samsung.com/SamsungUS/home/televisions-and-home-theater/tvs/qled-tvs/pdf/Specs_TV_Q7F_091517.pdf",
+      "type": "datasheet",
+      "title": "SPEC SHEET SEE BACK FOR DETAILS PRODUCT HIGHLIGHTS KEY FEATURES SIZE CLASS",
+      "retrieved_date": "2026-07-13",
+      "notes": "Discovered via search; source URL: https://image-us.samsung.com/SamsungUS/home/televisions-and-home-theater/tvs/qled-tvs/pdf/Specs_TV_Q7F_091517.pdf"
+    },
+    {
+      "url": "https://image-us.samsung.com/SamsungUS/samsungbusiness/pdf/spec-sheets/QET_SERIES_QE43T_QE50T_QE55T_QE65T_QE70T_QE75T_QE82T.PDF",
+      "type": "datasheet",
+      "title": "QET 4K Crystal UHD Series Displays 43.0\" 50.0\" QE43T QE50T 55.0\" 65.0\" QE55T",
+      "retrieved_date": "2026-07-19",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://image-us.samsung.com/SamsungUS/samsungbusiness/pdf/spec-sheets/QMR-T_Touch_Series_QM43R-T_QM49R-T_QM55R-T_Datasheet.pdf",
+      "type": "datasheet",
+      "title": "QMR-T Series Displays 32.0\" 43.0\" QM32R-T QM43R-T 55.0\" QM55R-T",
+      "retrieved_date": "2026-07-19",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.samsung.com/uk/tvs/qled-tv/q7f2-43-inch-qled-4k-smart-tv-qe43q7f2auxxu/",
+      "type": "tech-specs-page",
+      "title": "2025 Q7F2 43 inch 4K Real QLED Vision AI TV | Samsung UK",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.samsung.com/ie/tvs/qled-tv/q7f-43-inch-qled-4k-smart-tv-qe43q7faauxxu/",
+      "type": "tech-specs-page",
+      "title": "2025 Q7F 43 inch 4K QLED Vision AI TV | Samsung IE",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.samsung.com/uk/support/model/QE43Q7FAAUXXU/",
+      "type": "tech-specs-page",
+      "title": "43\" QLED Q7F 4K Vision AI Smart TV (2025) | Samsung Support UK",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.samsung.com/ie/support/model/QE43Q7F2AUXXU/",
+      "type": "tech-specs-page",
+      "title": "QE43Q7F2AU | Samsung Support IE",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.samsung.com/uk/support/model/QE43Q7F2AUXXU/",
+      "type": "tech-specs-page",
+      "title": "43\" QLED Q7F2 4K Vision AI Smart TV (2025) | Samsung Support UK",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    }
+  ]
+}

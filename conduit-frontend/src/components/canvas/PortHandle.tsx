@@ -1,83 +1,61 @@
 import { Handle, Position } from "@xyflow/react"
-import { ConnectorPort } from "../../types/api"
-import { portColourHex } from "../../utils/portColour"
+import type { Port } from "../../conduit/types"
+import { signalColour, signalLabel } from "../../conduit/signalType"
+import { portHandleId, portQuantity, connectorLabel, type HandleRole } from "../../conduit/device"
 import { Tooltip } from "../ui/Tooltip"
 
 interface PortHandleProps {
-  port: ConnectorPort
-  direction: "input" | "output"
-  index: number
+  port: Port
+  role: HandleRole
   position: Position
 }
 
-function PortTooltipContent({ port }: { port: ConnectorPort }) {
+function PortTooltipContent({ port }: { port: Port }) {
+  const rates = Array.isArray(port.sample_rate_hz) ? port.sample_rate_hz : port.sample_rate_hz != null ? [port.sample_rate_hz] : []
+  const depths = Array.isArray(port.bit_depth) ? port.bit_depth : port.bit_depth != null ? [port.bit_depth] : []
   return (
     <div className="space-y-0.5 text-[10px]">
-      <div style={{ color: portColourHex(port.signal_type) }}>
-        {port.protocol}{port.version ? ` ${port.version}` : ""} · {port.signal_type}
+      <div style={{ color: signalColour(port.signal_type) }}>
+        {signalLabel(port.signal_type)} · {port.signal_type}
       </div>
-      {port.connector && (
-        <div>Connector: {port.connector}</div>
-      )}
-      {port.label && (
-        <div>Label: {port.label}</div>
-      )}
-      {port.max_cable_distance_m && (
-        <div>Max cable: {port.max_cable_distance_m}m</div>
-      )}
-      {port.latency_ms && (
-        <div>Latency: {port.latency_ms}ms</div>
-      )}
-      {port.sample_rates_hz?.length && (
-        <div>Sample rates: {port.sample_rates_hz.join(", ")} Hz</div>
-      )}
-      {port.bit_depths?.length && (
-        <div>Bit depth: {port.bit_depths.join(", ")} bit</div>
-      )}
-      {port.hdcp_version && (
-        <div>HDCP: {port.hdcp_version}</div>
+      <div>Direction: {port.direction}</div>
+      {port.connector_type && <div>Connector: {connectorLabel(port.connector_type)}</div>}
+      {port.label && <div>Label: {port.label}</div>}
+      {port.panel_side && <div>Panel: {port.panel_side}</div>}
+      {port.channel_count != null && <div>Channels: {port.channel_count}</div>}
+      {port.impedance_ohm != null && <div>Impedance: {port.impedance_ohm}Ω</div>}
+      {port.latency_ms != null && <div>Latency: {port.latency_ms}ms</div>}
+      {port.hdcp_version && <div>HDCP: {port.hdcp_version}</div>}
+      {rates.length > 0 && <div>Sample rate: {rates.join(", ")} Hz</div>}
+      {depths.length > 0 && <div>Bit depth: {depths.join(", ")} bit</div>}
+      {(port.signal_modes?.length ?? 0) > 0 && (
+        <div>Modes: {port.signal_modes!.map((m) => signalLabel(m.signal_type)).join(", ")}</div>
       )}
     </div>
   )
 }
 
-export function PortHandle({ port, direction, index, position }: PortHandleProps) {
-  const handleId = `${direction}-${port.protocol.replace(/\s+/g, "_")}-${index}`
-  const colour = portColourHex(port.signal_type)
-  const isOutput = direction === "output"
+export function PortHandle({ port, role, position }: PortHandleProps) {
+  const handleId = portHandleId(port, role)
+  const colour = signalColour(port.signal_type)
+  const isOutput = role === "out"
+  const qty = portQuantity(port)
 
-  const label = [
-    port.label || port.protocol,
-    port.version ? port.version : null,
-    port.quantity > 1 ? `×${port.quantity}` : null,
-  ]
+  const label = [port.label || signalLabel(port.signal_type), qty > 1 ? `×${qty}` : null]
     .filter(Boolean)
     .join(" ")
 
   return (
     <div
       className="relative flex items-center my-0.5 px-2"
-      style={{
-        flexDirection: isOutput ? "row-reverse" : "row",
-        justifyContent: isOutput ? "flex-start" : "flex-start",
-      }}
+      style={{ flexDirection: isOutput ? "row-reverse" : "row", justifyContent: "flex-start" }}
     >
       <Tooltip content={<PortTooltipContent port={port} />} side={isOutput ? "right" : "left"}>
-        <div
-          className="flex items-center gap-1.5"
-          style={{ flexDirection: isOutput ? "row-reverse" : "row" }}
-        >
-          <div
-            className="w-2.5 h-2.5 rounded-full shrink-0"
-            style={{ background: colour, flexShrink: 0 }}
-          />
+        <div className="flex items-center gap-1.5" style={{ flexDirection: isOutput ? "row-reverse" : "row" }}>
+          <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: colour, flexShrink: 0 }} />
           <span
             className="text-[10px] truncate"
-            style={{
-              color: "var(--text-secondary)",
-              maxWidth: 90,
-              textAlign: isOutput ? "right" : "left",
-            }}
+            style={{ color: "var(--text-secondary)", maxWidth: 90, textAlign: isOutput ? "right" : "left" }}
           >
             {label}
           </span>
@@ -85,14 +63,14 @@ export function PortHandle({ port, direction, index, position }: PortHandleProps
       </Tooltip>
 
       <Handle
-        type={direction === "input" ? "target" : "source"}
+        type={isOutput ? "source" : "target"}
         position={position}
         id={handleId}
         style={{
           background: colour,
           width: 10,
           height: 10,
-          border: `2px solid var(--panel)`,
+          border: "2px solid var(--panel)",
           borderRadius: "50%",
           cursor: "crosshair",
         }}

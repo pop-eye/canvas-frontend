@@ -13,7 +13,7 @@ import "@xyflow/react/dist/style.css"
 import { useCanvasStore } from "../../store/canvasStore"
 import { useUIStore } from "../../store/uiStore"
 import { useCompatibility } from "../../hooks/useCompatibility"
-import { getEquipment } from "../../api/equipment"
+import { fetchDevice } from "../../conduit/source"
 import { DeviceNode as DeviceNodeComponent } from "./DeviceNode"
 import { ConnectionEdge as ConnectionEdgeComponent } from "./ConnectionEdge"
 import { RoomBounds } from "./RoomBounds"
@@ -68,16 +68,16 @@ function ConduitCanvasInner() {
   const onDrop = useCallback(
     async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault()
-      const equipmentId = e.dataTransfer.getData("equipment-id")
-      if (!equipmentId) return
+      const deviceId = e.dataTransfer.getData("device-id")
+      if (!deviceId) return
 
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
 
       try {
-        const record = await getEquipment(equipmentId)
-        addNode(record, position)
+        const device = await fetchDevice(deviceId)
+        addNode(device, deviceId, position)
       } catch {
-        addToast({ type: "error", message: "Failed to load equipment from API" })
+        addToast({ type: "error", message: "Failed to load device profile" })
       }
     },
     [screenToFlowPosition, addNode, addToast]
@@ -110,12 +110,10 @@ function ConduitCanvasInner() {
         addToast({ type: "warning", message: result.warning })
       }
 
-      // Determine signal type from source port
+      // Signal type carried on the link — from the resolved source port.
       const sourceNode = nodes.find((n) => n.id === params.source)
-      const sourceOutputs = sourceNode?.data.record.metadata.connectivity.outputs ?? []
-      const handleParts = params.sourceHandle.split("-")
-      const idx = parseInt(handleParts[handleParts.length - 1], 10) || 0
-      const signalType = sourceOutputs[idx]?.signal_type ?? "other"
+      const sourcePort = sourceNode?.data.device.ports.find((p) => p.id === result.sourcePortId)
+      const signalType = sourcePort?.signal_type ?? "other"
 
       const edge: ConnectionEdge = {
         id: uuidv4(),
@@ -125,9 +123,10 @@ function ConduitCanvasInner() {
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
         data: {
-          sourcePortId: params.sourceHandle,
-          targetPortId: params.targetHandle,
+          sourcePortId: result.sourcePortId ?? "",
+          targetPortId: result.targetPortId ?? "",
           signalType,
+          severity: result.severity,
           compatible: result.compatible,
           warning: result.warning,
         },

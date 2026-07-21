@@ -1,0 +1,185 @@
+{
+  "ports": [
+    {
+      "connector_type": "hdmi-a",
+      "count": 2,
+      "direction": "in",
+      "id": "hdmi-in-1",
+      "label": "HDMI 2.0 input x 2",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "de-15",
+      "count": 1,
+      "direction": "in",
+      "id": "vga-in",
+      "label": "VGAinput x 1",
+      "signal_type": "video/vga"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "count": 1,
+      "direction": "in",
+      "id": "3d-sync-in",
+      "label": "3D sync in x 1",
+      "signal_type": "video/3d-sync"
+    },
+    {
+      "connector_type": "rca",
+      "count": 1,
+      "direction": "in",
+      "id": "audio-in",
+      "label": "Audio inputx 1",
+      "signal_type": "audio/analogue/unbalanced"
+    },
+    {
+      "connector_type": "rj45",
+      "count": 1,
+      "direction": "in",
+      "id": "hdbaset-in",
+      "label": "HDBaseTx 1",
+      "signal_type": "video/hdbaset"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "count": 1,
+      "direction": "out",
+      "id": "hdmi-out",
+      "label": "HDMI output x 1",
+      "signal_type": "video/hdmi"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "count": 1,
+      "direction": "out",
+      "id": "3d-sync-out",
+      "label": "3D sync output x 1",
+      "signal_type": "video/3d-sync"
+    },
+    {
+      "connector_type": "rca",
+      "count": 1,
+      "direction": "out",
+      "id": "audio-out",
+      "label": "Audio output x 1",
+      "signal_type": "audio/analogue/unbalanced"
+    },
+    {
+      "connector_type": "usb-a",
+      "count": 1,
+      "direction": "out",
+      "id": "usb-power",
+      "label": "USB Type A(Power 5V/1.5A) x 1",
+      "signal_type": "network/usb/2.0"
+    },
+    {
+      "connector_type": "db9",
+      "count": 1,
+      "direction": "bidirectional",
+      "id": "rs232-control",
+      "label": "RS-232 control x 1",
+      "signal_type": "control/rs232"
+    },
+    {
+      "connector_type": "rj45",
+      "count": 1,
+      "direction": "bidirectional",
+      "id": "rj45-net",
+      "label": "RJ-45 network x 1",
+      "signal_type": "network/ethernet/1g"
+    },
+    {
+      "connector_type": "internal",
+      "count": 1,
+      "direction": "bidirectional",
+      "id": "wired-remote",
+      "label": "Wired Remote x 1",
+      "signal_type": "control/gpio"
+    },
+    {
+      "connector_type": "phoenix-5.08mm",
+      "count": 1,
+      "direction": "in",
+      "id": "trigger-in",
+      "label": "12V Trigger x 1",
+      "signal_type": "control/gpio/contact-closure"
+    }
+  ],
+  "capabilities": [
+    {
+      "brightness_ansi_lm": 8800,
+      "built_in_blend": true,
+      "built_in_warp": true,
+      "contrast_ratio_full": 3000000,
+      "display_technology": "dlp-1chip",
+      "keystone_h_degrees": 30,
+      "keystone_v_degrees": 30,
+      "light_source_life_condition": "EcoMode",
+      "light_source_life_hours": 30000,
+      "light_source_type": "laser-phosphor",
+      "native_resolution": {
+        "height_px": 1200,
+        "width_px": 1920
+      },
+      "throw_ratio_max": 2.0,
+      "throw_ratio_min": 1.25,
+      "type": "display"
+    }
+  ],
+  "protocols": [
+    {
+      "name": "Crestron",
+      "transport": "tcp"
+    },
+    {
+      "name": "Extron",
+      "transport": "tcp"
+    },
+    {
+      "name": "AMX",
+      "transport": "tcp"
+    },
+    {
+      "name": "PJLink",
+      "transport": "tcp"
+    },
+    {
+      "name": "Telnet",
+      "transport": "tcp"
+    }
+  ],
+  "category": "projector",
+  "description": "High Lumen DuraCore laser projector with motorized zoom and integrated warping and edge blending processor.",
+  "dimensions": {
+    "depth_mm": 432.5,
+    "height_mm": 176,
+    "width_mm": 486
+  },
+  "environment": {
+    "audible_noise_dba": 27,
+    "humidity_max_percent": 85,
+    "operating_temp_max_c": 40,
+    "operating_temp_min_c": 5
+  },
+  "manufacturer": "Optoma",
+  "model": "ZU820T",
+  "power": {
+    "max_wattage": 520,
+    "typical_wattage": 265,
+    "voltage_v": [
+      110,
+      220
+    ]
+  },
+  "weight_kg": 14,
+  "schema_version": "conduit/v1",
+  "sources": [
+    {
+      "url": "https://region-resource.optoma.com/products/import/Documents/3f48867f-3e9d-4102-9e59-99ec93c30410.pdf",
+      "type": "third-party",
+      "title": "www.optoma.com",
+      "retrieved_date": "2026-07-13",
+      "notes": "Discovered via search; source URL: https://region-resource.optoma.com/products/import/Documents/3f48867f-3e9d-4102-9e59-99ec93c30410.pdf"
+    }
+  ]
+}

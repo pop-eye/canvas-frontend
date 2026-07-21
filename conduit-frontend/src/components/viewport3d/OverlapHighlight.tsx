@@ -128,7 +128,7 @@ export function OverlapHighlight({ nodes, placements, room }: Props) {
   const meshRefs = useRef<Map<string, Mesh>>(new Map())
 
   const overlaps: OverlapZone[] = useMemo(() => {
-    const projNodes = nodes.filter((n) => n.data.record.category === "projection")
+    const projNodes = nodes.filter((n) => n.data.device.category === "projector")
     const footprints = projNodes.map((n) => ({
       node: n,
       fp: computeProjectorFootprint(n, placements[n.data.instanceId], room),

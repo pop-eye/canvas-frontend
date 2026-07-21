@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Printer } from "lucide-react"
 import { useCanvasStore } from "../../store/canvasStore"
 import { calcPowerSummary } from "../../utils/powerCalc"
+import { deviceName, deviceMaxWatts } from "../../conduit/device"
+import { categoryLabel } from "../../conduit/category"
+import { signalLabel } from "../../conduit/signalType"
 
 interface Props {
   open: boolean
@@ -110,14 +113,14 @@ export function PrintReport({ open, onClose }: Props) {
                     </thead>
                     <tbody>
                       {nodes.map((n) => {
-                        const r = n.data.record
-                        const totalW = r.metadata.power?.reduce((s, p) => s + p.draw_watts, 0) ?? 0
+                        const d = n.data.device
+                        const totalW = Math.round(deviceMaxWatts(d))
                         return (
                           <tr key={n.id} className="border-b" style={{ borderColor: "#f3f4f6" }}>
-                            <td className="py-1.5 pr-4 font-medium text-gray-900">{n.data.label ?? r.name}</td>
-                            <td className="py-1.5 pr-4 text-gray-600">{r.manufacturer}</td>
-                            <td className="py-1.5 pr-4 text-gray-600" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>{r.model}</td>
-                            <td className="py-1.5 pr-4 text-gray-500">{r.category}</td>
+                            <td className="py-1.5 pr-4 font-medium text-gray-900">{n.data.label ?? deviceName(d)}</td>
+                            <td className="py-1.5 pr-4 text-gray-600">{d.manufacturer}</td>
+                            <td className="py-1.5 pr-4 text-gray-600" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>{d.model}</td>
+                            <td className="py-1.5 pr-4 text-gray-500">{categoryLabel(d.category)}</td>
                             <td className="py-1.5 text-right text-gray-700" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>
                               {totalW > 0 ? totalW : "—"}
                             </td>
@@ -184,15 +187,15 @@ export function PrintReport({ open, onClose }: Props) {
                       {edges.map((e) => {
                         const src = nodes.find((n) => n.id === e.source)
                         const tgt = nodes.find((n) => n.id === e.target)
-                        const srcName = src?.data.label ?? src?.data.record.name ?? e.source
-                        const tgtName = tgt?.data.label ?? tgt?.data.record.name ?? e.target
+                        const srcName = src?.data.label ?? (src ? deviceName(src.data.device) : e.source)
+                        const tgtName = tgt?.data.label ?? (tgt ? deviceName(tgt.data.device) : e.target)
                         const d = e.data
                         return (
                           <tr key={e.id} className="border-b" style={{ borderColor: "#f3f4f6" }}>
                             <td className="py-1.5 pr-4 text-gray-700">{srcName}</td>
                             <td className="py-1.5 pr-4 text-gray-700">{tgtName}</td>
                             <td className="py-1.5 pr-4 text-gray-500" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>
-                              {(d as import("../../types/canvas").ConnectionEdgeData)?.signalType ?? "—"}
+                              {d?.signalType ? signalLabel(d.signalType) : "—"}
                             </td>
                             <td className="py-1.5 text-xs" style={{
                               color: !(d as import("../../types/canvas").ConnectionEdgeData)?.compatible

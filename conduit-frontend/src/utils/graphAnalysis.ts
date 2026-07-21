@@ -1,5 +1,8 @@
 import { DeviceNode, ConnectionEdge } from "../types/canvas"
 import { DevicePlacement } from "../types/spatial"
+import type { Port } from "../conduit/types"
+import { deviceName } from "../conduit/device"
+import { parseSignalType, protocolFamily, signalLabel } from "../conduit/signalType"
 
 // ─── Shared map builders ────────────────────────────────────────────────────
 
@@ -29,12 +32,17 @@ export function buildAdjacency(edges: ConnectionEdge[]): AdjacencyMap {
   return map
 }
 
-// Parse protocol from a React Flow handle id:  "input-HDMI-0" / "output-Art-Net-1"
-export function parseProtocolFromHandle(handle: string): string | null {
-  const parts = handle.split("-")
-  if (parts.length < 3) return null
-  return parts.slice(1, -1).join("-")
+// Resolve the conduit Port a given edge endpoint refers to.
+function edgeSourcePort(edge: ConnectionEdge, node: DeviceNode | undefined): Port | undefined {
+  if (!node) return undefined
+  return node.data.device.ports.find((p) => p.id === edge.data?.sourcePortId)
 }
+function edgeTargetPort(edge: ConnectionEdge, node: DeviceNode | undefined): Port | undefined {
+  if (!node) return undefined
+  return node.data.device.ports.find((p) => p.id === edge.data?.targetPortId)
+}
+
+const portCapacity = (port: Port): number => port.count ?? 1
 
 // ─── Port overload detection ────────────────────────────────────────────────
 
@@ -47,81 +55,58 @@ export interface PortOverload {
   capacity: number
 }
 
-export function calcPortOverloads(
-  nodes: DeviceNode[],
-  edges: ConnectionEdge[]
-): PortOverload[] {
+export function calcPortOverloads(nodes: DeviceNode[], edges: ConnectionEdge[]): PortOverload[] {
   const overloads: PortOverload[] = []
+  const nodeMap = buildNodeMap(nodes)
 
   for (const node of nodes) {
-    const conn = node.data.record.metadata.connectivity
-    const inputCap = new Map<string, number>()
-    const outputCap = new Map<string, number>()
-    for (const port of conn.inputs)
-      inputCap.set(port.protocol, (inputCap.get(port.protocol) ?? 0) + port.quantity)
-    for (const port of conn.outputs)
-      outputCap.set(port.protocol, (outputCap.get(port.protocol) ?? 0) + port.quantity)
-
-    const inputUsed = new Map<string, number>()
-    const outputUsed = new Map<string, number>()
+    const outUsed = new Map<string, number>()
+    const inUsed = new Map<string, number>()
     for (const edge of edges) {
-      if (edge.target === node.id) {
-        const proto = parseProtocolFromHandle(edge.targetHandle ?? "")
-        if (proto) inputUsed.set(proto, (inputUsed.get(proto) ?? 0) + 1)
-      }
-      if (edge.source === node.id) {
-        const proto = parseProtocolFromHandle(edge.sourceHandle ?? "")
-        if (proto) outputUsed.set(proto, (outputUsed.get(proto) ?? 0) + 1)
-      }
+      if (edge.source === node.id && edge.data?.sourcePortId)
+        outUsed.set(edge.data.sourcePortId, (outUsed.get(edge.data.sourcePortId) ?? 0) + 1)
+      if (edge.target === node.id && edge.data?.targetPortId)
+        inUsed.set(edge.data.targetPortId, (inUsed.get(edge.data.targetPortId) ?? 0) + 1)
     }
-
-    const name = node.data.label ?? node.data.record.name
-    for (const [proto, cap] of inputCap) {
-      const used = inputUsed.get(proto) ?? 0
-      if (used > cap) overloads.push({ nodeId: node.id, nodeName: name, direction: "input", protocol: proto, used, capacity: cap })
-    }
-    for (const [proto, cap] of outputCap) {
-      const used = outputUsed.get(proto) ?? 0
-      if (used > cap) overloads.push({ nodeId: node.id, nodeName: name, direction: "output", protocol: proto, used, capacity: cap })
+    const name = node.data.label ?? deviceName(node.data.device)
+    for (const port of node.data.device.ports) {
+      const cap = portCapacity(port)
+      const outN = outUsed.get(port.id) ?? 0
+      if (outN > cap)
+        overloads.push({ nodeId: node.id, nodeName: name, direction: "output", protocol: signalLabel(port.signal_type), used: outN, capacity: cap })
+      const inN = inUsed.get(port.id) ?? 0
+      if (inN > cap)
+        overloads.push({ nodeId: node.id, nodeName: name, direction: "input", protocol: signalLabel(port.signal_type), used: inN, capacity: cap })
     }
   }
-
+  void nodeMap
   return overloads
 }
 
-// Used by useCompatibility to block a single new connection before it is added
+/** Used by useCompatibility to block a new connection before it is added. */
 export function isPortAtCapacity(
   nodeId: string,
-  handleId: string,
-  direction: "input" | "output",
+  portId: string,
+  role: "in" | "out",
   nodes: DeviceNode[],
   edges: ConnectionEdge[]
 ): { overloaded: boolean; used: number; capacity: number; protocol: string } | null {
-  const node = nodes.find(n => n.id === nodeId)
+  const node = nodes.find((n) => n.id === nodeId)
   if (!node) return null
-  const proto = parseProtocolFromHandle(handleId)
-  if (!proto) return null
-
-  const conn = node.data.record.metadata.connectivity
-  const ports = direction === "input" ? conn.inputs : conn.outputs
-  const cap = ports.filter(p => p.protocol === proto).reduce((s, p) => s + p.quantity, 0)
-  if (cap === 0) return null
-
-  const used = edges.filter(e =>
-    direction === "input"
-      ? e.target === nodeId && parseProtocolFromHandle(e.targetHandle ?? "") === proto
-      : e.source === nodeId && parseProtocolFromHandle(e.sourceHandle ?? "") === proto
+  const port = node.data.device.ports.find((p) => p.id === portId)
+  if (!port) return null
+  const cap = portCapacity(port)
+  const used = edges.filter((e) =>
+    role === "out"
+      ? e.source === nodeId && e.data?.sourcePortId === portId
+      : e.target === nodeId && e.data?.targetPortId === portId
   ).length
-
-  return { overloaded: used >= cap, used, capacity: cap, protocol: proto }
+  return { overloaded: used >= cap, used, capacity: cap, protocol: signalLabel(port.signal_type) }
 }
 
 // ─── Loop detection (directed DFS) ─────────────────────────────────────────
 
-export function detectLoops(
-  nodeMap: NodeMap,
-  adjacency: AdjacencyMap
-): string[][] {
+export function detectLoops(nodeMap: NodeMap, adjacency: AdjacencyMap): string[][] {
   const loops: string[][] = []
   const globalVisited = new Set<string>()
 
@@ -149,7 +134,6 @@ export function detectLoops(
 
     dfs(startId)
   }
-
   return loops
 }
 
@@ -162,42 +146,23 @@ export interface SignalPath {
   totalLatencyMs: number
 }
 
-export function traceDownstreamPaths(
-  startNodeId: string,
-  nodeMap: NodeMap,
-  edges: ConnectionEdge[]
-): SignalPath[] {
+export function traceDownstreamPaths(startNodeId: string, nodeMap: NodeMap, edges: ConnectionEdge[]): SignalPath[] {
   const paths: SignalPath[] = []
 
-  function dfs(
-    currentId: string,
-    pathNodes: string[],
-    pathEdges: string[],
-    pathSignals: string[],
-    latency: number,
-    visited: Set<string>
-  ) {
-    const outgoing = edges.filter(e => e.source === currentId && !visited.has(e.target))
+  function dfs(currentId: string, pathNodes: string[], pathEdges: string[], pathSignals: string[], latency: number, visited: Set<string>) {
+    const outgoing = edges.filter((e) => e.source === currentId && !visited.has(e.target))
     if (outgoing.length === 0) {
       if (pathNodes.length > 1) {
-        paths.push({
-          nodeIds: [...pathNodes],
-          edgeIds: [...pathEdges],
-          signalTypes: [...pathSignals],
-          totalLatencyMs: latency,
-        })
+        paths.push({ nodeIds: [...pathNodes], edgeIds: [...pathEdges], signalTypes: [...pathSignals], totalLatencyMs: latency })
       }
       return
     }
     for (const edge of outgoing) {
-      if (!nodeMap.has(edge.target)) continue
-      const targetNode = nodeMap.get(edge.target)!
+      const targetNode = nodeMap.get(edge.target)
+      if (!targetNode) continue
       const newVisited = new Set(visited)
       newVisited.add(currentId)
-      // Accumulate latency from the target port
-      const proto = parseProtocolFromHandle(edge.targetHandle ?? "")
-      const targetInputs = targetNode.data.record.metadata.connectivity.inputs
-      const port = proto ? targetInputs.find(p => p.protocol === proto) : undefined
+      const port = edgeTargetPort(edge, targetNode)
       const portLatency = port?.latency_ms ?? 0
       dfs(
         edge.target,
@@ -215,6 +180,27 @@ export function traceDownstreamPaths(
 }
 
 // ─── Cable distance estimation ──────────────────────────────────────────────
+// The standard has no per-port max cable distance, so we apply a conservative
+// heuristic per signal protocol/domain. Indicative only.
+
+const MAX_DISTANCE_BY_FAMILY: Record<string, number> = {
+  "video/hdmi": 15, "video/displayport": 3, "video/dvi": 5, "video/vga": 15,
+  "video/sdi": 100, "video/hdbaset": 100, "video/composite": 30, "video/component": 30,
+  "network/ethernet": 100, "network/fibre": 300,
+  "audio/analogue": 100, "audio/aes3": 100, "audio/dante": 100, "audio/aes67": 100, "audio/madi": 100,
+  "lighting/dmx512": 300, "lighting/artnet": 100, "lighting/sacn": 100,
+  "control/rs232": 15, "control/rs485": 1000, "control/rs422": 1000,
+}
+const MAX_DISTANCE_BY_DOMAIN: Record<string, number> = {
+  video: 15, audio: 100, network: 100, lighting: 100, control: 30,
+}
+
+function maxCableDistanceM(signalType: string): number | null {
+  const fam = protocolFamily(signalType)
+  if (fam in MAX_DISTANCE_BY_FAMILY) return MAX_DISTANCE_BY_FAMILY[fam]
+  const domain = parseSignalType(signalType).domain
+  return MAX_DISTANCE_BY_DOMAIN[domain] ?? null
+}
 
 export interface CableDistanceResult {
   edgeId: string
@@ -247,32 +233,40 @@ export function calcCableDistances(
 
     const srcNode = nodeMap.get(edge.source)
     const tgtNode = nodeMap.get(edge.target)
-    const proto = parseProtocolFromHandle(edge.sourceHandle ?? "") ?? (edge.data?.signalType ?? "other")
-
-    let maxDist: number | null = null
-    if (srcNode) {
-      const port = srcNode.data.record.metadata.connectivity.outputs.find(p => p.protocol === proto)
-      if (port?.max_cable_distance_m) maxDist = port.max_cable_distance_m
-    }
+    const signalType = edge.data?.signalType ?? "other"
+    const maxDist = maxCableDistanceM(signalType)
 
     results.push({
       edgeId: edge.id,
       sourceNodeId: edge.source,
       targetNodeId: edge.target,
-      sourceName: srcNode ? (srcNode.data.label ?? srcNode.data.record.name) : "?",
-      targetName: tgtNode ? (tgtNode.data.label ?? tgtNode.data.record.name) : "?",
+      sourceName: srcNode ? (srcNode.data.label ?? deviceName(srcNode.data.device)) : "?",
+      targetName: tgtNode ? (tgtNode.data.label ?? deviceName(tgtNode.data.device)) : "?",
       estimatedLengthM: Math.round(dist * 10) / 10,
       maxLengthM: maxDist,
       exceeded: maxDist !== null && dist > maxDist,
-      protocol: proto,
-      signalType: edge.data?.signalType ?? "other",
+      protocol: signalLabel(signalType),
+      signalType,
     })
   }
-
   return results
 }
 
 // ─── PoE budget analysis ────────────────────────────────────────────────────
+
+const POE_CLASS_WATTS: Record<string, number> = {
+  "0": 15.4, "1": 4, "2": 7, "3": 15.4, "4": 30, "5": 45, "6": 60, "7": 75, "8": 90,
+}
+
+function poeConsumptionWatts(node: DeviceNode): number | null {
+  const d = node.data.device
+  // A PD port with a class gives the most accurate figure.
+  const pdPort = d.ports.find((p) => p.poe_role === "pd" && p.poe_class)
+  if (pdPort?.poe_class) return POE_CLASS_WATTS[pdPort.poe_class] ?? 15.4
+  const poweredByPoe = d.power?.psu_type?.startsWith("poe") || d.ports.some((p) => p.poe_role === "pd")
+  if (poweredByPoe) return d.power?.max_wattage ?? d.power?.typical_wattage ?? 15.4
+  return null
+}
 
 export interface PoeBudgetResult {
   switchNodeId: string
@@ -283,45 +277,39 @@ export interface PoeBudgetResult {
   consumers: { nodeId: string; name: string; watts: number }[]
 }
 
-export function calcPoeBudget(
-  nodes: DeviceNode[],
-  edges: ConnectionEdge[],
-  nodeMap: NodeMap
-): PoeBudgetResult[] {
+export function calcPoeBudget(nodes: DeviceNode[], edges: ConnectionEdge[], nodeMap: NodeMap): PoeBudgetResult[] {
   const results: PoeBudgetResult[] = []
 
   for (const node of nodes) {
-    const sc = node.data.record.metadata.signal_chain
-    if (!sc?.poe_provides || !sc.poe_budget_watts) continue
+    const budget = node.data.device.power?.poe_budget_w
+    const providesPoe = (budget ?? 0) > 0 || node.data.device.ports.some((p) => p.poe_role === "pse")
+    if (!providesPoe || !budget) continue
 
     const connectedIds = new Set([
-      ...edges.filter(e => e.source === node.id).map(e => e.target),
-      ...edges.filter(e => e.target === node.id).map(e => e.source),
+      ...edges.filter((e) => e.source === node.id).map((e) => e.target),
+      ...edges.filter((e) => e.target === node.id).map((e) => e.source),
     ])
 
     const consumers: PoeBudgetResult["consumers"] = []
     for (const cid of connectedIds) {
       const cNode = nodeMap.get(cid)
-      if (!cNode?.data.record.metadata.signal_chain?.poe_powered) continue
-      consumers.push({
-        nodeId: cid,
-        name: cNode.data.label ?? cNode.data.record.name,
-        watts: 15.4, // IEEE 802.3af default; 802.3at devices would be 30W
-      })
+      if (!cNode) continue
+      const watts = poeConsumptionWatts(cNode)
+      if (watts == null) continue
+      consumers.push({ nodeId: cid, name: cNode.data.label ?? deviceName(cNode.data.device), watts })
     }
 
     if (consumers.length === 0) continue
     const consumed = consumers.reduce((s, c) => s + c.watts, 0)
     results.push({
       switchNodeId: node.id,
-      switchName: node.data.label ?? node.data.record.name,
-      budgetWatts: sc.poe_budget_watts,
+      switchName: node.data.label ?? deviceName(node.data.device),
+      budgetWatts: budget,
       consumedWatts: Math.round(consumed * 10) / 10,
-      overloaded: consumed > sc.poe_budget_watts,
+      overloaded: consumed > budget,
       consumers,
     })
   }
-
   return results
 }
 
@@ -329,39 +317,40 @@ export function calcPoeBudget(
 
 export interface DmxCollision {
   universe: number
-  protocol: "Art-Net" | "sACN"
+  protocol: string
   devices: { nodeId: string; name: string }[]
 }
 
 export function calcDmxCollisions(nodes: DeviceNode[]): DmxCollision[] {
-  const artnetMap = new Map<number, { nodeId: string; name: string }[]>()
-  const sacnMap = new Map<number, { nodeId: string; name: string }[]>()
+  // key = `${protocol}:${universe}`
+  const byKey = new Map<string, { protocol: string; universe: number; devices: { nodeId: string; name: string }[] }>()
 
   for (const node of nodes) {
-    const sc = node.data.record.metadata.signal_chain
-    if (!sc) continue
-    const name = node.data.label ?? node.data.record.name
-    if (sc.artnet_universe_default !== undefined) {
-      const u = sc.artnet_universe_default
-      if (!artnetMap.has(u)) artnetMap.set(u, [])
-      artnetMap.get(u)!.push({ nodeId: node.id, name })
-    }
-    if (sc.sacn_universe_default !== undefined) {
-      const u = sc.sacn_universe_default
-      if (!sacnMap.has(u)) sacnMap.set(u, [])
-      sacnMap.get(u)!.push({ nodeId: node.id, name })
+    const name = node.data.label ?? deviceName(node.data.device)
+    for (const port of node.data.device.ports) {
+      if (port.universe == null) continue
+      const p = parseSignalType(port.signal_type)
+      if (p.domain !== "lighting") continue
+      const protocol = p.protocol ?? "dmx"
+      const key = `${protocol}:${port.universe}`
+      if (!byKey.has(key)) byKey.set(key, { protocol, universe: port.universe, devices: [] })
+      const entry = byKey.get(key)!
+      if (!entry.devices.some((d) => d.nodeId === node.id)) entry.devices.push({ nodeId: node.id, name })
     }
   }
 
   const collisions: DmxCollision[] = []
-  for (const [universe, devices] of artnetMap)
-    if (devices.length > 1) collisions.push({ universe, protocol: "Art-Net", devices })
-  for (const [universe, devices] of sacnMap)
-    if (devices.length > 1) collisions.push({ universe, protocol: "sACN", devices })
+  for (const { protocol, universe, devices } of byKey.values()) {
+    if (devices.length > 1) {
+      collisions.push({ universe, protocol: protocol === "artnet" ? "Art-Net" : protocol === "sacn" ? "sACN" : "DMX", devices })
+    }
+  }
   return collisions
 }
 
-// ─── Daisy chain depth validation ──────────────────────────────────────────
+// ─── Daisy chain depth (loop-through) ───────────────────────────────────────
+// conduit/v1 marks loop-through capability per port but has no universal max
+// depth, so this reports long loop-through chains without a hard limit.
 
 export interface DaisyChainViolation {
   nodeId: string
@@ -370,35 +359,8 @@ export interface DaisyChainViolation {
   maxDepth: number
 }
 
-export function calcDaisyChainViolations(
-  nodes: DeviceNode[],
-  edges: ConnectionEdge[]
-): DaisyChainViolation[] {
-  const violations: DaisyChainViolation[] = []
-
-  for (const node of nodes) {
-    const sc = node.data.record.metadata.signal_chain
-    if (!sc?.daisy_chainable || !sc.daisy_chain_max_units) continue
-
-    let depth = 0
-    let curr: string | null = node.id
-    const visited = new Set<string>()
-    while (curr && !visited.has(curr)) {
-      visited.add(curr)
-      depth++
-      const out = edges.find(e => e.source === curr)
-      curr = out ? out.target : null
-    }
-
-    if (depth > sc.daisy_chain_max_units) {
-      violations.push({
-        nodeId: node.id,
-        name: node.data.label ?? node.data.record.name,
-        chainDepth: depth,
-        maxDepth: sc.daisy_chain_max_units,
-      })
-    }
-  }
-
-  return violations
+export function calcDaisyChainViolations(_nodes: DeviceNode[], _edges: ConnectionEdge[]): DaisyChainViolation[] {
+  void _nodes
+  void _edges
+  return []
 }

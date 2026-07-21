@@ -117,7 +117,7 @@ export function ProjectorAnalysisPanel({ nodeId }: Props) {
 
   if (!node) return null
 
-  if (node.data.record.category !== "projection") {
+  if (node.data.device.category !== "projector") {
     return (
       <div className="p-4 space-y-1 text-center" style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>
         <div className="text-[11px] pt-4">Not a projection device.</div>

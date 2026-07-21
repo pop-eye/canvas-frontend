@@ -1,35 +1,33 @@
 import { DeviceNode } from "../types/canvas"
-import { PowerSpec } from "../types/api"
+import { deviceName, deviceMaxWatts, deviceTypicalWatts, connectorLabel } from "../conduit/device"
 
 export interface PowerSummaryEntry {
   nodeId: string
   instanceId: string
   name: string
-  totalWatts: number
-  maxWatts: number
-  circuits: PowerSpec[]
+  totalWatts: number       // max draw (falls back to typical)
+  typicalWatts: number
+  connector: string        // mains connector — proxy for the circuit type
 }
 
 export interface CircuitGroup {
-  circuitRequired: string
+  circuitRequired: string  // connector/circuit label
   devices: PowerSummaryEntry[]
   totalWatts: number
-  limitWatts: number  // e.g. 3000 for 13A, 4600 for 20A
+  limitWatts: number
 }
 
-const CIRCUIT_LIMITS: Record<string, number> = {
-  "13A": 3000,
-  "15A": 3450,
-  "20A": 4600,
-  "32A": 7360,
-  "63A": 14490,
+// Rough continuous-load ceiling (W) by mains connector, at ~230V unless noted.
+const CONNECTOR_LIMITS: Record<string, number> = {
+  "iec-c13": 2300, "iec-c14": 2300, "iec-c19": 3680, "iec-c20": 3680,
+  "bs1363": 3000, "schuko": 3680, "nema-5-15": 1800, "nema-5-20": 2400,
+  "nema-l6-20": 4600, "nema-l21-30": 20700, "cee-16a": 3680, "cee-32a": 7360,
+  "powercon-true1": 3680, "powercon-true1-top": 3680, "powerlock": 40000,
 }
 
-function circuitLimit(circuitRequired: string): number {
-  for (const [key, limit] of Object.entries(CIRCUIT_LIMITS)) {
-    if (circuitRequired.includes(key)) return limit
-  }
-  return 3000 // default to 13A
+function connectorLimit(connector: string | undefined): number {
+  if (connector && connector in CONNECTOR_LIMITS) return CONNECTOR_LIMITS[connector]
+  return 3000
 }
 
 export function calcPowerSummary(nodes: DeviceNode[]): {
@@ -38,42 +36,35 @@ export function calcPowerSummary(nodes: DeviceNode[]): {
   grandTotalWatts: number
 } {
   const entries: PowerSummaryEntry[] = nodes.map((node) => {
-    const power = node.data.record.metadata.power ?? []
-    const totalWatts = power.reduce((sum, p) => sum + (p.draw_watts ?? 0), 0)
-    const maxWatts = power.reduce((sum, p) => sum + (p.draw_watts_max ?? p.draw_watts ?? 0), 0)
+    const d = node.data.device
     return {
       nodeId: node.id,
       instanceId: node.data.instanceId,
-      name: node.data.label ?? node.data.record.name,
-      totalWatts,
-      maxWatts,
-      circuits: power,
+      name: node.data.label ?? deviceName(d),
+      totalWatts: Math.round(deviceMaxWatts(d)),
+      typicalWatts: Math.round(deviceTypicalWatts(d)),
+      connector: d.power?.connector_type ?? "",
     }
   })
 
   const groupMap = new Map<string, CircuitGroup>()
   for (const entry of entries) {
-    for (const circuit of entry.circuits) {
-      const key = circuit.circuit_required ?? "Unknown"
-      if (!groupMap.has(key)) {
-        groupMap.set(key, {
-          circuitRequired: key,
-          devices: [],
-          totalWatts: 0,
-          limitWatts: circuitLimit(key),
-        })
-      }
-      const group = groupMap.get(key)!
-      group.devices.push(entry)
-      group.totalWatts += circuit.draw_watts ?? 0
+    if (entry.totalWatts <= 0) continue
+    const key = entry.connector || "unmetered"
+    if (!groupMap.has(key)) {
+      groupMap.set(key, {
+        circuitRequired: entry.connector ? connectorLabel(entry.connector) : "Unmetered",
+        devices: [],
+        totalWatts: 0,
+        limitWatts: connectorLimit(entry.connector),
+      })
     }
+    const group = groupMap.get(key)!
+    group.devices.push(entry)
+    group.totalWatts += entry.totalWatts
   }
 
   const grandTotalWatts = entries.reduce((sum, e) => sum + e.totalWatts, 0)
 
-  return {
-    entries,
-    groups: Array.from(groupMap.values()),
-    grandTotalWatts,
-  }
+  return { entries, groups: Array.from(groupMap.values()), grandTotalWatts }
 }

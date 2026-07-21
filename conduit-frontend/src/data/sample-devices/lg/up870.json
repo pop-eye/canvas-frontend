@@ -1,0 +1,103 @@
+{
+  "schema_version": "conduit/v1",
+  "manufacturer": "LG",
+  "model": "UP870",
+  "category": "media-player",
+  "subcategory": "4K Ultra-HD Blu-Ray Player",
+  "description": "LG UP870 is a 4K Ultra-HD Blu-Ray player with support for 4K and 3D Blu-Ray discs, DVD playback, and HDR10 compatibility. It features 4K upscaling and various video and audio format support.",
+  "form_factor": "desktop",
+  "dimensions": {
+    "width_mm": 429.26,
+    "height_mm": 45.72,
+    "depth_mm": 205.74
+  },
+  "weight_kg": 1.63,
+  "reliability": {
+    "warranty_years": 1,
+    "warranty_notes": "1 Year Parts & Labor"
+  },
+  "power": {
+    "max_wattage": 17,
+    "typical_wattage": 17
+  },
+  "ports": [
+    {
+      "id": "in_1",
+      "label": "USB",
+      "signal_type": "network/usb/2.0",
+      "connector_type": "usb-a",
+      "direction": "in",
+      "panel_side": "rear"
+    },
+    {
+      "id": "in_2",
+      "label": "Disc Drive",
+      "signal_type": "video/hdmi",
+      "connector_type": "rj45",
+      "direction": "in",
+      "panel_side": "front"
+    },
+    {
+      "id": "out_3",
+      "label": "HDMI Out",
+      "signal_type": "video/hdmi/2.0",
+      "connector_type": "hdmi-a",
+      "direction": "out",
+      "panel_side": "rear"
+    },
+    {
+      "id": "out_4",
+      "label": "Optical Audio Output",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "rj45",
+      "direction": "out",
+      "panel_side": "rear"
+    },
+    {
+      "id": "net_5",
+      "label": "10/100 Ethernet",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_6",
+      "label": "SIMPLINK",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    }
+  ],
+  "protocols": [
+    {
+      "name": "SIMPLINK"
+    }
+  ],
+  "datasheet_url": "https://media.flixcar.com/f360cdn/LG_Electronics-33714174-UP870-Spec-Sheet-2.pdf",
+  "tags": [
+    "4K",
+    "Blu-Ray",
+    "3D",
+    "HDR10",
+    "Upscaling"
+  ],
+  "notes": "Supports playback of a wide variety of disc types including BD-ROM, DVD-ROM, Audio CD, and various recordable formats. Also supports playback from USB and external HDD. Includes NTSC-PAL conversion and FCC TTS/Closed Caption support.",
+  "profile_meta": {
+    "created_at": "2026-05-08T20:31:07.049Z",
+    "updated_at": "2026-05-08T20:31:07.049Z",
+    "created_by": "conduit-scraper",
+    "source": "scraper",
+    "verified": false,
+    "confidence": "high",
+    "verification_method": "datasheet",
+    "license": "CC-BY-SA-4.0",
+    "cla_signed": false
+  },
+  "sources": [
+    {
+      "url": "https://media.flixcar.com/f360cdn/LG_Electronics-33714174-UP870-Spec-Sheet-2.pdf",
+      "type": "datasheet",
+      "retrieved_date": "2026-05-08"
+    }
+  ]
+}

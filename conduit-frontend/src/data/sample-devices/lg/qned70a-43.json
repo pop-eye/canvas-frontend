@@ -1,0 +1,158 @@
+{
+  "protocols": [
+    {
+      "name": "webOS",
+      "transport": "proprietary",
+      "version": "25"
+    },
+    {
+      "name": "Google Cast",
+      "transport": "udp",
+      "version": "unknown"
+    },
+    {
+      "name": "Apple Airplay",
+      "transport": "udp",
+      "version": "unknown"
+    }
+  ],
+  "capabilities": [
+    {
+      "analogue_input_count": 0,
+      "analogue_output_count": 1,
+      "dante_channel_count_in": 0,
+      "dante_channel_count_out": 0,
+      "gain_compensation": false,
+      "type": "audio-io"
+    },
+    {
+      "cpu_model": "Alpha 7 AI Processor Gen8",
+      "type": "compute"
+    },
+    {
+      "native_resolution": {
+        "height_px": 2160,
+        "width_px": 3840
+      },
+      "type": "display"
+    }
+  ],
+  "tags": [
+    "4K, QNED, Smart TV, webOS"
+  ],
+  "ports": [
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-1",
+      "label": "HDMI Input",
+      "signal_type": "video/hdmi/2.1"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-2",
+      "label": "HDMI Input (eARC)",
+      "signal_type": "video/hdmi/2.1"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-3",
+      "label": "HDMI Input",
+      "signal_type": "video/hdmi/2.1"
+    },
+    {
+      "connector_type": "toslink",
+      "direction": "out",
+      "id": "optical",
+      "label": "SPDIF (Optical Digital Audio Out)",
+      "signal_type": "audio/spdif/optical"
+    },
+    {
+      "connector_type": "rj45",
+      "direction": "in",
+      "id": "ethernet",
+      "label": "Ethernet Input",
+      "signal_type": "network/ethernet/1g"
+    },
+    {
+      "connector_type": "usb-a",
+      "direction": "in",
+      "id": "usb",
+      "label": "USB Input",
+      "signal_type": "network/usb/2.0"
+    },
+    {
+      "connector_type": "f-type",
+      "direction": "in",
+      "id": "rf",
+      "label": "RF Input (Antenna/Cable)",
+      "signal_type": "rf/antenna/dvb-t"
+    }
+  ],
+  "category": "display",
+  "description": "43 inch LG QNED AI QNED70 4K Smart TV 2025",
+  "dimensions": {
+    "depth_mm": 67.9,
+    "height_mm": 567,
+    "width_mm": 968
+  },
+  "extensions": {
+    "conduit:unmapped": {
+      "/capabilities/confidence": 0.9,
+      "/capabilities/notes": "1.3-fold increase in AI performance, 2.3-fold enhancement in graphic performance, and a processing speed that is 1.6 times faster.",
+      "/capabilities/source_page": 1,
+      "/capabilities/source_quote": "Powered by the α8 AI Processor... improving upon its predecessor with an 1.3-fold increase in AI performance, a 2.3-fold enhancement in graphic performance, and a processing speed that is 1.6 times faster.",
+      "/protocols/confidence": 0.9,
+      "/protocols/source_page": 3,
+      "/protocols/source_quote": "LG 2024 QNED TVs also support Apple AirPlay and Chromecast"
+    }
+  },
+  "manufacturer": "LG Electronics",
+  "model": "QNED70A",
+  "model_variant": "43",
+  "notes": "Includes AI Picture Pro (deep learning for faces/objects/backgrounds), Dynamic Tone Mapping Pro (HDR optimization), Personalized Picture Wizard, webOS Re:New program, Dynamic Q Card UI, and accessibility features including sign language avatars. Features virtual 9.1.2 surround sound via AI Sound Pro.",
+  "power": {
+    "frequency_hz": [
+      50,
+      60
+    ],
+    "notes": "HDR power consumption: 74 kWh/1000h",
+    "standby_wattage": 0.5,
+    "typical_wattage": 54,
+    "voltage_v": [
+      100,
+      240
+    ]
+  },
+  "weight_kg": 7.5,
+  "schema_version": "conduit/v1",
+  "sources": [
+    {
+      "url": "https://www.lg.com/us/press-release/CES2024_CAT2_2024_LG_QNED_TV_Lineup_F.pdf",
+      "type": "datasheet",
+      "title": "LG INTRODUCES 2024 QNED TVS WITH ENHANCED ...",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.lg.com/uk/tvs-soundbars/qned/43qned70a6a/?srsltid=AfmBOoo8aT7A5_9Pj-kn07dhxyZNYITAtKTzKdgRO6bDc4Pg2lo2BpXt",
+      "type": "tech-specs-page",
+      "retrieved_date": "2026-07-20"
+    },
+    {
+      "url": "https://www.lg.com/uk/lgecs.downloadFile.ldwf?DOC_ID=20250304240560&ORIGINAL_NAME_b1_a1=43QNED70A6A+EK.pdf&FILE_NAME=43QNED70A6A+EK%5B20250304122856258%5D.pdf&TC=DwnCmd&GSRI_DOC=GSRI&SPEC_DOWNLOAD=N",
+      "type": "datasheet",
+      "title": "A B C D E F G LG Electronics 2019/2013 A B C D E F G 43QNED70A6A 54 74",
+      "retrieved_date": "2026-07-20",
+      "notes": "Sourced via source_device"
+    },
+    {
+      "url": "https://www.lg.com/us/tvs/lg-43qned70aua-qned-4k-tv",
+      "type": "tech-specs-page",
+      "title": "43 Inch Class LG QNED AI QNED70A 4K Smart TV 2025 - 43QNED70AUA.AUS | LG USA",
+      "retrieved_date": "2026-07-20"
+    }
+  ]
+}

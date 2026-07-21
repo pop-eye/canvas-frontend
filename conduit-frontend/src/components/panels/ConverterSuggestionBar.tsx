@@ -1,15 +1,15 @@
 import { X, ArrowRight, Zap } from "lucide-react"
-import type { EquipmentRecord } from "../../types/api"
+import type { ConduitDevice } from "../../conduit/types"
 
 export interface ConverterSuggestion {
-  converters: EquipmentRecord[]
+  converters: ConduitDevice[]
   sourceProtocol: string
   targetProtocol: string
 }
 
 interface Props {
   suggestion: ConverterSuggestion
-  onInsert: (converter: EquipmentRecord) => void
+  onInsert: (converter: ConduitDevice) => void
   onDismiss: () => void
 }
 
@@ -44,7 +44,7 @@ export function ConverterSuggestionBar({ suggestion, onInsert, onDismiss }: Prop
           <div className="flex flex-wrap gap-2">
             {converters.slice(0, 3).map((c) => (
               <button
-                key={c.id}
+                key={`${c.manufacturer}-${c.model}`}
                 onClick={() => onInsert(c)}
                 style={{
                   fontSize: 11,

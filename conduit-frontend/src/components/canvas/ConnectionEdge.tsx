@@ -2,6 +2,7 @@ import { memo } from "react"
 import { EdgeProps, getBezierPath, EdgeLabelRenderer } from "@xyflow/react"
 import { ConnectionEdge as ConnectionEdgeType } from "../../types/canvas"
 import { portColourHex } from "../../utils/portColour"
+import { signalLabel } from "../../conduit/signalType"
 import { AlertTriangle } from "lucide-react"
 import { useUIStore } from "../../store/uiStore"
 
@@ -114,8 +115,9 @@ export const ConnectionEdge = memo(function ConnectionEdge({
                 whiteSpace: "nowrap",
                 letterSpacing: "0.04em",
               }}
+              title={signalType}
             >
-              {signalType}
+              {signalLabel(signalType)}
             </div>
           </div>
         </EdgeLabelRenderer>

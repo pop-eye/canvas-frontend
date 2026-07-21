@@ -1,0 +1,148 @@
+{
+  "protocols": [
+    {
+      "name": "Bluetooth Audio",
+      "transport": "bluetooth"
+    },
+    {
+      "name": "Bluetooth Low Energy",
+      "transport": "bluetooth"
+    },
+    {
+      "name": "Anynet+ (HDMI-CEC)",
+      "transport": "proprietary"
+    },
+    {
+      "name": "WiFi Direct",
+      "transport": "proprietary"
+    }
+  ],
+  "ports": [
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-1",
+      "label": "HDMI 1",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-2",
+      "label": "HDMI 2",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "id": "hdmi-3",
+      "label": "HDMI 3",
+      "signal_type": "video/hdmi/2.0"
+    },
+    {
+      "connector_type": "usb-a",
+      "direction": "in",
+      "id": "usb-1",
+      "label": "USB 1",
+      "signal_type": "network/usb/3.2"
+    },
+    {
+      "connector_type": "usb-a",
+      "direction": "in",
+      "id": "usb-2",
+      "label": "USB 2",
+      "signal_type": "network/usb/3.2"
+    },
+    {
+      "connector_type": "rca-composite",
+      "direction": "in",
+      "id": "composite-in",
+      "label": "Composite In (AV)",
+      "signal_type": "video/composite"
+    },
+    {
+      "connector_type": "rj45",
+      "direction": "in",
+      "id": "ethernet",
+      "label": "Ethernet (LAN)",
+      "signal_type": "network/ethernet/1g"
+    },
+    {
+      "connector_type": "toslink",
+      "direction": "out",
+      "id": "optical-out",
+      "label": "Digital Audio Out (Optical)",
+      "signal_type": "audio/spdif/optical"
+    },
+    {
+      "connector_type": "f-type",
+      "direction": "in",
+      "id": "rf-in",
+      "label": "RF In",
+      "signal_type": "rf/antenna/dvb-t2"
+    }
+  ],
+  "capabilities": [
+    {
+      "analogue_output_count": 1,
+      "type": "audio-io"
+    },
+    {
+      "display_technology": "lcd",
+      "light_source_type": "other",
+      "native_resolution": {
+        "height_px": 2160,
+        "width_px": 3840
+      },
+      "type": "display"
+    }
+  ],
+  "category": "display",
+  "description": "55\" AU9000 Crystal UHD 4K Smart TV (2021)",
+  "dimensions": {
+    "depth_mm": 249.1,
+    "height_mm": 774.1,
+    "width_mm": 1232.9
+  },
+  "extensions": {
+    "conduit:unmapped": {
+      "/capabilities/hdr": true
+    }
+  },
+  "form_factor": "wall-mount",
+  "manufacturer": "Samsung",
+  "model": "UN55AU9000PXPA",
+  "model_variant": "WXXY",
+  "notes": "PQI: 2800. Features include Dynamic Crystal Color, UHD Dimming, Motion Xcelerator Turbo, and Q-Symphony.",
+  "power": {
+    "connector_type": "iec-c14",
+    "frequency_hz": [
+      50,
+      60
+    ],
+    "max_wattage": 145,
+    "standby_wattage": 0.5,
+    "typical_wattage": 102,
+    "voltage_v": [
+      100,
+      240
+    ]
+  },
+  "weight_kg": 14.2,
+  "schema_version": "conduit/v1",
+  "sources": [
+    {
+      "url": "https://www.samsung.com/latin_en/tvs/uhd-4k-tv/55--au9000-crystal-uhd-4k-smart-tv--2021--55-inch-un55au9000pxpa/",
+      "type": "tech-specs-page",
+      "title": "55\" AU9000 Crystal UHD 4K Smart TV (2021) UN55AU9000PXPA | Samsung Caribbean",
+      "retrieved_date": "2026-07-19"
+    },
+    {
+      "url": "https://images.samsung.com/is/content/samsung/p5/au/tvs/specs/2020/TU8000-Crystal-UHD-4K-Smart-TV-2020-Product-Specifications.pdf",
+      "type": "datasheet",
+      "title": "TU8000 Crystal UHD 4K Smart TV (2020) Exceptional. Elegant. Effortless.",
+      "retrieved_date": "2026-07-19",
+      "notes": "Sourced via source_device"
+    }
+  ]
+}

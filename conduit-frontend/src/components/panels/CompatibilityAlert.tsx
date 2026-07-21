@@ -1,5 +1,6 @@
 import { useCanvasStore } from "../../store/canvasStore"
 import { AlertTriangle, XCircle } from "lucide-react"
+import { deviceName } from "../../conduit/device"
 
 export function CompatibilityAlert() {
   const { edges, nodes } = useCanvasStore()
@@ -76,8 +77,8 @@ function IssueRow({
 }) {
   const sourceNode = nodes.find((n) => n.id === edge.source)
   const targetNode = nodes.find((n) => n.id === edge.target)
-  const sourceName = sourceNode?.data.label ?? sourceNode?.data.record.name ?? "?"
-  const targetName = targetNode?.data.label ?? targetNode?.data.record.name ?? "?"
+  const sourceName = sourceNode?.data.label ?? (sourceNode ? deviceName(sourceNode.data.device) : "?")
+  const targetName = targetNode?.data.label ?? (targetNode ? deviceName(targetNode.data.device) : "?")
   const message = edge.data?.warning ?? "Incompatible connection"
   const colour = type === "error" ? "#EF4444" : "#F59E0B"
   const Icon = type === "error" ? XCircle : AlertTriangle

@@ -1,8 +1,10 @@
 import { Node, Edge } from "@xyflow/react"
-import { EquipmentRecord } from "./api"
+import type { ConduitDevice } from "../conduit/types"
+import type { Severity } from "../conduit/compatibility"
 
 export interface DeviceNodeData extends Record<string, unknown> {
-  record: EquipmentRecord
+  device: ConduitDevice
+  deviceId: string         // stable repo id, e.g. "optoma/zu607t"
   instanceId: string       // UUID — unique per placement
   label?: string           // user-editable label override
 }
@@ -10,9 +12,10 @@ export interface DeviceNodeData extends Record<string, unknown> {
 export type DeviceNode = Node<DeviceNodeData, "device">
 
 export interface ConnectionEdgeData extends Record<string, unknown> {
-  sourcePortId: string     // format: `${protocol}::${index}`
-  targetPortId: string
-  signalType: string
+  sourcePortId: string     // conduit Port.id on the source device
+  targetPortId: string     // conduit Port.id on the target device
+  signalType: string       // hierarchical signal type carried on the link
+  severity: Severity
   compatible: boolean
   warning?: string
 }

@@ -1,8 +1,9 @@
 import { EquipmentLibrary } from "../library/EquipmentLibrary"
-import { useStats } from "../../hooks/useEquipment"
+import { useDeviceIndex } from "../../conduit/useDevices"
 
 export function Sidebar() {
-  const { data: stats } = useStats()
+  const { data } = useDeviceIndex()
+  const total = data?.index.count ?? data?.index.devices.length
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -14,14 +15,11 @@ export function Sidebar() {
           className="text-xs font-medium uppercase tracking-widest"
           style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}
         >
-          Equipment Library
+          Device Library
         </span>
-        {stats && (
-          <span
-            className="text-xs"
-            style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            {stats.total} devices
+        {total != null && (
+          <span className="text-xs" style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>
+            {total} devices
           </span>
         )}
       </div>

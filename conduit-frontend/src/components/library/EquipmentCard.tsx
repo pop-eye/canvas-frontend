@@ -1,23 +1,23 @@
-import { EquipmentRecord } from "../../types/api"
-import { ConfidenceBadge, Badge } from "../ui/Badge"
 import { AlertTriangle } from "lucide-react"
-import { getCategoryIcon } from "../canvas/DeviceNode"
+import type { DeviceIndexEntry } from "../../conduit/source"
+import { Badge, ConfidenceLevelBadge } from "../ui/Badge"
+import { getCategoryIcon, categoryLabel } from "../../conduit/category"
 
 interface EquipmentCardProps {
-  record: EquipmentRecord
+  entry: DeviceIndexEntry
 }
 
-export function EquipmentCard({ record }: EquipmentCardProps) {
-  const totalWatts = record.metadata.power?.reduce((s, p) => s + (p.draw_watts ?? 0), 0) ?? 0
-  const Icon = getCategoryIcon(record.category)
+export function EquipmentCard({ entry }: EquipmentCardProps) {
+  const Icon = getCategoryIcon(entry.category)
+  const name = [entry.manufacturer, entry.model].filter(Boolean).join(" ")
+  const needsReview = entry.verified === false
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    e.dataTransfer.setData("equipment-id", record.id)
+    e.dataTransfer.setData("device-id", entry.id)
     e.dataTransfer.effectAllowed = "copy"
 
-    // Custom drag image
     const el = document.createElement("div")
-    el.textContent = record.name
+    el.textContent = name
     el.style.cssText = `
       position: fixed; top: -100px; left: -100px;
       background: #111214; color: #E8EAED; padding: 6px 10px;
@@ -34,12 +34,9 @@ export function EquipmentCard({ record }: EquipmentCardProps) {
     <div
       draggable
       onDragStart={handleDragStart}
-      data-equipment-id={record.id}
+      data-device-id={entry.id}
       className="flex flex-col gap-1.5 px-3 py-2.5 rounded-[2px] cursor-grab active:cursor-grabbing transition-colors border-l-2 hover:bg-white/5"
-      style={{
-        background: "var(--bg)",
-        borderColor: record.needs_review ? "#F59E0B" : "transparent",
-      }}
+      style={{ background: "var(--bg)", borderColor: needsReview ? "#F59E0B" : "transparent" }}
     >
       <div className="flex items-start gap-2">
         <div className="shrink-0 mt-0.5 opacity-60">
@@ -47,37 +44,28 @@ export function EquipmentCard({ record }: EquipmentCardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span
-              className="text-sm font-medium leading-tight truncate"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {record.name}
+            <span className="text-sm font-medium leading-tight truncate" style={{ color: "var(--text-primary)" }}>
+              {name}
             </span>
-            {record.needs_review && (
-              <AlertTriangle size={11} className="text-amber-400 shrink-0" />
-            )}
+            {needsReview && <AlertTriangle size={11} className="text-amber-400 shrink-0" />}
           </div>
           <div
             className="text-[11px] truncate mt-0.5"
             style={{ color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}
           >
-            {record.manufacturer} · {record.model}
+            {entry.manufacturer} · {entry.model}
+            {entry.model_variant ? ` · ${entry.model_variant}` : ""}
           </div>
         </div>
-        <ConfidenceBadge confidence={record.confidence} />
+        <ConfidenceLevelBadge level={entry.confidence} />
       </div>
 
       <div className="flex items-center gap-1.5 flex-wrap">
-        <Badge>{record.category.replace(/_/g, " ")}</Badge>
-        {record.metadata.physical?.form_factor && (
-          <Badge variant="default">{record.metadata.physical.form_factor}</Badge>
-        )}
-        {totalWatts > 0 && (
-          <span
-            className="text-[10px] font-mono"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            ⚡ {totalWatts}W
+        <Badge>{categoryLabel(entry.category)}</Badge>
+        {entry.form_factor && <Badge variant="default">{entry.form_factor.replace(/-/g, " ")}</Badge>}
+        {entry.port_count != null && (
+          <span className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>
+            {entry.port_count} ports
           </span>
         )}
       </div>

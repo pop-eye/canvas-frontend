@@ -1,0 +1,140 @@
+{
+  "schema_version": "conduit/v1",
+  "manufacturer": "ViewSonic",
+  "model": "M2",
+  "category": "projector",
+  "subcategory": "Smart Theater Projector",
+  "dimensions": {
+    "width_mm": 146,
+    "height_mm": 115,
+    "depth_mm": 146
+  },
+  "weight_kg": 0.9,
+  "environment": {
+    "operating_temp_min_c": 0,
+    "operating_temp_max_c": 40
+  },
+  "power": {
+    "max_wattage": 65,
+    "typical_wattage": 65,
+    "voltage_v": [
+      100,
+      240
+    ],
+    "connector_type": "dc-barrel"
+  },
+  "ports": [
+    {
+      "id": "in_1",
+      "label": "HDMI 2",
+      "signal_type": "video/hdmi",
+      "connector_type": "hdmi-a",
+      "direction": "in",
+      "hdcp": true,
+      "hdcp_version": "2.0"
+    },
+    {
+      "id": "in_2",
+      "label": "USB-C1",
+      "signal_type": "network/usb/2.0",
+      "connector_type": "usb-c",
+      "direction": "in"
+    },
+    {
+      "id": "in_3",
+      "label": "USB A (5V/2A Out)",
+      "signal_type": "network/usb/2.0",
+      "connector_type": "usb-a",
+      "direction": "in",
+      "panel_side": "rear"
+    },
+    {
+      "id": "in_4",
+      "label": "MICRO SD",
+      "signal_type": "network/ethernet/1g",
+      "connector_type": "rj45",
+      "direction": "in"
+    },
+    {
+      "id": "out_5",
+      "label": "Audio Out",
+      "signal_type": "audio/analogue/balanced",
+      "connector_type": "rj45",
+      "direction": "out"
+    },
+    {
+      "id": "net_6",
+      "label": "Wi-Fi (via included dongle)",
+      "signal_type": "network/wifi/5g",
+      "connector_type": "wireless",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_7",
+      "label": "IR",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "ctrl_8",
+      "label": "Bluetooth",
+      "signal_type": "control/tcp-ip",
+      "connector_type": "rj45",
+      "direction": "bidirectional"
+    },
+    {
+      "id": "pwr_9",
+      "label": "POWER",
+      "signal_type": "power/mains/ac/universal",
+      "connector_type": "dc-barrel",
+      "direction": "power-in"
+    }
+  ],
+  "capabilities": [
+    {
+      "type": "display",
+      "native_resolution": {
+        "width_px": 1920,
+        "height_px": 1080
+      },
+      "brightness_ansi_lm": 1200,
+      "display_technology": "led",
+      "built_in_warp": true,
+      "built_in_blend": false
+    }
+  ],
+  "protocols": [
+    {
+      "name": "IR"
+    },
+    {
+      "name": "Bluetooth"
+    }
+  ],
+  "datasheet_url": "https://www.viewsonicglobal.com/public/products_download/user_guide/Projector/M2/M2_UG_ENG.pdf",
+  "tags": [
+    "portable",
+    "short throw",
+    "smart"
+  ],
+  "notes": "The projector can be powered by a USB-C power bank (45W minimum, PD protocol) but brightness will be limited to 50% (Full) or 30% (Eco). iPhone/iPad users require an additional adapter for HDMI connection. Supports HDCP 2.0/HDMI 2.2. Dual integrated theater-level Harman Kardon speakers. Local storage: 16GB total (10GB available). Input lag: 125ms. Supports resolutions up to 4K (3840x2160).",
+  "profile_meta": {
+    "created_at": "2026-05-08T19:54:20.055Z",
+    "updated_at": "2026-05-08T19:54:20.055Z",
+    "created_by": "conduit-scraper",
+    "source": "scraper",
+    "verified": false,
+    "confidence": "high",
+    "verification_method": "datasheet",
+    "license": "CC-BY-SA-4.0",
+    "cla_signed": false
+  },
+  "sources": [
+    {
+      "url": "https://www.viewsonicglobal.com/public/products_download/user_guide/Projector/M2/M2_UG_ENG.pdf",
+      "type": "datasheet",
+      "retrieved_date": "2026-05-08"
+    }
+  ]
+}
