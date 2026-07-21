@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo } from "react"
+import { Plus } from "lucide-react"
 import { useDeviceIndex } from "../../conduit/useDevices"
+import { useCustomDeviceStore, customToIndexEntry } from "../../conduit/customDevices"
 import { EquipmentCard } from "./EquipmentCard"
 import { CategoryFilter } from "./CategoryFilter"
 import { SearchInput } from "../ui/SearchInput"
+import { CustomDeviceModal } from "../layout/CustomDeviceModal"
 import type { DeviceIndexEntry } from "../../conduit/source"
 import type { DeviceCategory } from "../../conduit/types"
 
@@ -20,6 +23,7 @@ export function EquipmentLibrary() {
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [category, setCategory] = useState<DeviceCategory | "">("")
   const [verifiedOnly, setVerifiedOnly] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search.trim().toLowerCase()), 300)
@@ -27,7 +31,12 @@ export function EquipmentLibrary() {
   }, [search])
 
   const { data, isLoading, error } = useDeviceIndex()
-  const allEntries = data?.index.devices ?? []
+  const customEntries = useCustomDeviceStore((s) => s.entries)
+  // User's own devices sit at the top of the library.
+  const allEntries = useMemo(
+    () => [...customEntries.map(customToIndexEntry), ...(data?.index.devices ?? [])],
+    [customEntries, data]
+  )
 
   // Categories actually present, for the filter pills.
   const availableCategories = useMemo(() => {
@@ -51,7 +60,17 @@ export function EquipmentLibrary() {
     <div className="flex flex-col h-full">
       {/* Filters */}
       <div className="p-3 space-y-2 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
-        <SearchInput value={search} onChange={setSearch} placeholder="Search devices…" />
+        <div className="flex gap-2">
+          <div className="flex-1"><SearchInput value={search} onChange={setSearch} placeholder="Search devices…" /></div>
+          <button
+            onClick={() => setAddOpen(true)}
+            title="Add a custom device"
+            className="flex items-center gap-1 px-2 rounded-[2px] shrink-0"
+            style={{ color: "var(--accent)", border: "1px solid var(--border)", background: "var(--bg)", fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
+          >
+            <Plus size={13} /> Add
+          </button>
+        </div>
         <CategoryFilter categories={availableCategories} selected={category} onChange={setCategory} />
         <div className="flex items-center gap-2">
           <FilterToggle active={!verifiedOnly} onClick={() => setVerifiedOnly(false)} label="All" />
@@ -101,6 +120,8 @@ export function EquipmentLibrary() {
           </span>
         </div>
       )}
+
+      <CustomDeviceModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   )
 }

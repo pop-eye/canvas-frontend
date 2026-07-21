@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import {
   ReactFlow,
   Background,
@@ -14,6 +14,7 @@ import { useCanvasStore } from "../../store/canvasStore"
 import { useUIStore } from "../../store/uiStore"
 import { useCompatibility } from "../../hooks/useCompatibility"
 import { fetchDevice } from "../../conduit/source"
+import { useConverters, pickBridgePorts, type ConverterMatch } from "../../conduit/converters"
 import { DeviceNode as DeviceNodeComponent } from "./DeviceNode"
 import { ConnectionEdge as ConnectionEdgeComponent } from "./ConnectionEdge"
 import { RoomBounds } from "./RoomBounds"
@@ -21,6 +22,18 @@ import { ConnectionEdge, DeviceNode } from "../../types/canvas"
 import { v4 as uuidv4 } from "uuid"
 import { CompatibilityAlert } from "../panels/CompatibilityAlert"
 import { RigHealthPanel } from "../panels/RigHealthPanel"
+import { ConverterSuggestionBar } from "../panels/ConverterSuggestionBar"
+
+interface PendingConverter {
+  source: string
+  sourceHandle: string
+  target: string
+  targetHandle: string
+  from: string
+  to: string
+  fromLabel: string
+  toLabel: string
+}
 
 const nodeTypes = { device: DeviceNodeComponent, roomBounds: RoomBounds }
 const edgeTypes = { connection: ConnectionEdgeComponent }
@@ -64,6 +77,7 @@ function ConduitCanvasInner() {
   const { validateConnection } = useCompatibility()
   const { screenToFlowPosition } = useReactFlow()
   const dropRef = useRef<HTMLDivElement>(null)
+  const [pendingConverter, setPendingConverter] = useState<PendingConverter | null>(null)
 
   const onDrop = useCallback(
     async (e: React.DragEvent<HTMLDivElement>) => {
@@ -88,53 +102,92 @@ function ConduitCanvasInner() {
     e.dataTransfer.dropEffect = "copy"
   }, [])
 
-  const onConnect = useCallback(
-    (params: Connection) => {
-      if (!params.source || !params.target || !params.sourceHandle || !params.targetHandle) return
-
-      const result = validateConnection(
-        params.source,
-        params.sourceHandle,
-        params.target,
-        params.targetHandle,
-        nodes,
-        edges
-      )
-
+  // Validate + create one edge. Returns true if the edge was added.
+  const connect = useCallback(
+    (sourceId: string, sourceHandle: string, targetId: string, targetHandle: string, nodesArr: DeviceNode[]): boolean => {
+      const result = validateConnection(sourceId, sourceHandle, targetId, targetHandle, nodesArr, useCanvasStore.getState().edges)
       if (!result.compatible) {
         addToast({ type: "error", message: result.reason ?? "Incompatible connection" })
-        return
+        return false
       }
+      if (result.warning) addToast({ type: "warning", message: result.warning })
 
-      if (result.warning) {
-        addToast({ type: "warning", message: result.warning })
-      }
-
-      // Signal type carried on the link — from the resolved source port.
-      const sourceNode = nodes.find((n) => n.id === params.source)
-      const sourcePort = sourceNode?.data.device.ports.find((p) => p.id === result.sourcePortId)
-      const signalType = sourcePort?.signal_type ?? "other"
-
+      const sNode = nodesArr.find((n) => n.id === sourceId)
+      const sPort = sNode?.data.device.ports.find((p) => p.id === result.sourcePortId)
       const edge: ConnectionEdge = {
         id: uuidv4(),
         type: "connection",
-        source: params.source,
-        target: params.target,
-        sourceHandle: params.sourceHandle,
-        targetHandle: params.targetHandle,
+        source: sourceId,
+        target: targetId,
+        sourceHandle,
+        targetHandle,
         data: {
           sourcePortId: result.sourcePortId ?? "",
           targetPortId: result.targetPortId ?? "",
-          signalType,
+          signalType: sPort?.signal_type ?? "other",
           severity: result.severity,
           compatible: result.compatible,
           warning: result.warning,
         },
       }
-
       addEdge(edge)
+      return true
     },
-    [nodes, validateConnection, addEdge, addToast]
+    [validateConnection, addEdge, addToast]
+  )
+
+  const onConnect = useCallback(
+    (params: Connection) => {
+      if (!params.source || !params.target || !params.sourceHandle || !params.targetHandle) return
+
+      const result = validateConnection(params.source, params.sourceHandle, params.target, params.targetHandle, nodes, edges)
+
+      if (!result.compatible) {
+        // A protocol mismatch that a converter could bridge → offer to insert one.
+        if (result.converter) {
+          setPendingConverter({
+            source: params.source, sourceHandle: params.sourceHandle,
+            target: params.target, targetHandle: params.targetHandle,
+            ...result.converter,
+          })
+        } else {
+          addToast({ type: "error", message: result.reason ?? "Incompatible connection" })
+        }
+        return
+      }
+      connect(params.source, params.sourceHandle, params.target, params.targetHandle, nodes)
+    },
+    [nodes, edges, validateConnection, connect, addToast]
+  )
+
+  // Insert a converter between the blocked source/target and auto-wire both hops.
+  const insertConverter = useCallback(
+    (match: ConverterMatch) => {
+      const pc = pendingConverter
+      if (!pc) return
+      const bridge = pickBridgePorts(match.device, pc.from, pc.to)
+      if (!bridge) {
+        addToast({ type: "error", message: "That converter has no matching ports" })
+        setPendingConverter(null)
+        return
+      }
+      const src = nodes.find((n) => n.id === pc.source)
+      const tgt = nodes.find((n) => n.id === pc.target)
+      const pos = {
+        x: ((src?.position.x ?? 0) + (tgt?.position.x ?? 0)) / 2 + (src && tgt ? 0 : 80),
+        y: ((src?.position.y ?? 0) + (tgt?.position.y ?? 0)) / 2 + 60,
+      }
+      const convId = addNode(match.device, match.id, pos)
+      // Fresh nodes now include the converter (zustand set is synchronous).
+      const fresh = useCanvasStore.getState().nodes
+      const ok1 = connect(pc.source, pc.sourceHandle, convId, `${bridge.inId}::in`, fresh)
+      const ok2 = connect(convId, `${bridge.outId}::out`, pc.target, pc.targetHandle, useCanvasStore.getState().nodes)
+      if (ok1 && ok2) {
+        addToast({ type: "success", message: `Inserted ${match.device.manufacturer} ${match.device.model}` })
+      }
+      setPendingConverter(null)
+    },
+    [pendingConverter, nodes, addNode, connect, addToast]
   )
 
   const onNodeClick = useCallback(
@@ -232,6 +285,11 @@ function ConduitCanvasInner() {
         />
       </ReactFlow>
 
+      {/* Converter suggestion (on a protocol-mismatch connection attempt) */}
+      {pendingConverter && (
+        <ConverterPrompt pc={pendingConverter} onInsert={insertConverter} onDismiss={() => setPendingConverter(null)} />
+      )}
+
       {/* Floating analysis overlays */}
       <div className="absolute bottom-4 right-4 pointer-events-none flex flex-col items-end">
         <CompatibilityAlert />
@@ -250,6 +308,29 @@ function ConduitCanvasInner() {
         </div>
       )}
     </div>
+  )
+}
+
+// Runs the catalog search for a pending converter and renders the suggestion bar.
+function ConverterPrompt({
+  pc,
+  onInsert,
+  onDismiss,
+}: {
+  pc: PendingConverter
+  onInsert: (m: ConverterMatch) => void
+  onDismiss: () => void
+}) {
+  const { data: matches, isLoading } = useConverters(pc.from, pc.to)
+  return (
+    <ConverterSuggestionBar
+      fromLabel={pc.fromLabel}
+      toLabel={pc.toLabel}
+      matches={matches ?? []}
+      loading={isLoading}
+      onInsert={onInsert}
+      onDismiss={onDismiss}
+    />
   )
 }
 

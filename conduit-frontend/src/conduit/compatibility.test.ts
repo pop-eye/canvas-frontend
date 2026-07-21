@@ -43,6 +43,12 @@ describe("checkSignalCompatibility", () => {
     expect(r.reason).toMatch(/converter/i)
   })
 
+  it("emits a structured converter hint for a bridgeable mismatch", () => {
+    const r = checkSignalCompatibility("video/sdi/3g", "video/hdmi/2.0")
+    expect(r.compatible).toBe(false)
+    expect(r.converter).toEqual({ from: "video/sdi", to: "video/hdmi", fromLabel: "SDI 3G", toLabel: "HDMI 2.0" })
+  })
+
   it("bridges DVI↔HDMI with a warning", () => {
     const r = checkSignalCompatibility("video/dvi-d", "video/hdmi/2.0")
     // dvi-d family is video/dvi-d, hdmi is video/hdmi — different families,

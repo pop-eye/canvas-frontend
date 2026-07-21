@@ -57,6 +57,14 @@ for (const [path, loader] of Object.entries(bundledLoaders)) {
 
 export type SourceOrigin = "remote" | "bundled"
 
+// User-defined ("custom") devices resolve through this hook before any network
+// call, so they load on the canvas exactly like catalog devices. Wired up by
+// the custom-device store.
+let customResolver: (id: string) => ConduitDevice | undefined = () => undefined
+export function setCustomResolver(fn: (id: string) => ConduitDevice | undefined) {
+  customResolver = fn
+}
+
 async function fetchJson(url: string, timeoutMs = 10_000): Promise<unknown> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
@@ -89,6 +97,10 @@ export async function fetchDeviceIndex(): Promise<{ index: DeviceIndex; origin: 
 
 /** Load one full device profile by id, remote-first with a bundled fallback. */
 export async function fetchDevice(id: string, path?: string): Promise<ConduitDevice> {
+  // User-defined devices short-circuit any network call.
+  const custom = customResolver(id)
+  if (custom) return custom
+
   const rel = path ?? `${id}.json`
   // Remote first.
   try {

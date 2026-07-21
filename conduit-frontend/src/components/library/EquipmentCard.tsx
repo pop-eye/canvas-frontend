@@ -1,7 +1,8 @@
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, Trash2 } from "lucide-react"
 import type { DeviceIndexEntry } from "../../conduit/source"
 import { Badge, ConfidenceLevelBadge } from "../ui/Badge"
 import { getCategoryIcon, categoryLabel } from "../../conduit/category"
+import { isCustomId, useCustomDeviceStore } from "../../conduit/customDevices"
 
 interface EquipmentCardProps {
   entry: DeviceIndexEntry
@@ -11,6 +12,8 @@ export function EquipmentCard({ entry }: EquipmentCardProps) {
   const Icon = getCategoryIcon(entry.category)
   const name = [entry.manufacturer, entry.model].filter(Boolean).join(" ")
   const needsReview = entry.verified === false
+  const custom = isCustomId(entry.id)
+  const removeCustomDevice = useCustomDeviceStore((s) => s.removeCustomDevice)
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("device-id", entry.id)
@@ -47,7 +50,12 @@ export function EquipmentCard({ entry }: EquipmentCardProps) {
             <span className="text-sm font-medium leading-tight truncate" style={{ color: "var(--text-primary)" }}>
               {name}
             </span>
-            {needsReview && <AlertTriangle size={11} className="text-amber-400 shrink-0" />}
+            {custom && (
+              <span className="text-[9px] px-1 rounded-[1px] shrink-0" style={{ background: "var(--accent)", color: "#000", fontFamily: "'JetBrains Mono', monospace" }}>
+                CUSTOM
+              </span>
+            )}
+            {needsReview && !custom && <AlertTriangle size={11} className="text-amber-400 shrink-0" />}
           </div>
           <div
             className="text-[11px] truncate mt-0.5"
@@ -57,7 +65,19 @@ export function EquipmentCard({ entry }: EquipmentCardProps) {
             {entry.model_variant ? ` · ${entry.model_variant}` : ""}
           </div>
         </div>
-        <ConfidenceLevelBadge level={entry.confidence} />
+        <div className="flex items-center gap-1 shrink-0">
+          <ConfidenceLevelBadge level={entry.confidence} />
+          {custom && (
+            <button
+              onClick={(e) => { e.stopPropagation(); removeCustomDevice(entry.id) }}
+              onDragStart={(e) => e.preventDefault()}
+              className="opacity-40 hover:opacity-100 transition-opacity"
+              title="Remove custom device"
+            >
+              <Trash2 size={12} style={{ color: "var(--text-secondary)" }} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-1.5 flex-wrap">

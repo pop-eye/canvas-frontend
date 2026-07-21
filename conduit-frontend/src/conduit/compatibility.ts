@@ -31,6 +31,8 @@ export interface CompatibilityResult {
   note?: string
   /** Which signal modes were matched, when not the primary signal_type. */
   viaMode?: { source?: string; target?: string }
+  /** Present when the link is blocked but a converter would bridge it. */
+  converter?: { from: string; to: string; fromLabel: string; toLabel: string }
 }
 
 const OK: CompatibilityResult = { compatible: true, severity: "ok" }
@@ -160,7 +162,14 @@ const signalRules: SignalRule[] = [
   // Same domain, different protocol, no known bridge → needs a converter.
   (source, target) => {
     if (protocolFamily(source) === protocolFamily(target)) return null
-    return fail(`Requires a ${signalLabel(source)} → ${signalLabel(target)} converter`)
+    const fromLabel = signalLabel(source)
+    const toLabel = signalLabel(target)
+    return {
+      compatible: false,
+      severity: "error",
+      reason: `Requires a ${fromLabel} → ${toLabel} converter`,
+      converter: { from: protocolFamily(source), to: protocolFamily(target), fromLabel, toLabel },
+    }
   },
 ]
 

@@ -29,7 +29,7 @@ interface CanvasStore {
   roomConfig3D: RoomConfig3D | null
   undoStack: CanvasSnapshot[]
 
-  addNode: (device: ConduitDevice, deviceId: string, position: XYPosition) => void
+  addNode: (device: ConduitDevice, deviceId: string, position: XYPosition) => string
   duplicateNode: (id: string) => void
   removeNode: (id: string) => void
   selectNode: (id: string | null) => void
@@ -143,6 +143,7 @@ export const useCanvasStore = create<CanvasStore>()(
           nodes: [...state.nodes, newNode],
           placements: { ...state.placements, [instanceId]: placement },
         })
+        return instanceId
       },
 
       duplicateNode: (id) => {

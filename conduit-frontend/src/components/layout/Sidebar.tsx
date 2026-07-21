@@ -1,9 +1,12 @@
 import { EquipmentLibrary } from "../library/EquipmentLibrary"
 import { useDeviceIndex } from "../../conduit/useDevices"
+import { useCustomDeviceStore } from "../../conduit/customDevices"
 
 export function Sidebar() {
   const { data } = useDeviceIndex()
-  const total = data?.index.count ?? data?.index.devices.length
+  const customCount = useCustomDeviceStore((s) => s.entries.length)
+  const catalogCount = data?.index.count ?? data?.index.devices.length
+  const total = catalogCount != null ? catalogCount + customCount : undefined
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
