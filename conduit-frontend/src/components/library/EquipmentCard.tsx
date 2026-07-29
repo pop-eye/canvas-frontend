@@ -1,21 +1,25 @@
-import { AlertTriangle, Trash2 } from "lucide-react"
+import { AlertTriangle, Trash2, GripVertical } from "lucide-react"
 import type { DeviceIndexEntry } from "../../conduit/source"
 import { Badge, ConfidenceLevelBadge } from "../ui/Badge"
 import { getCategoryIcon, categoryLabel } from "../../conduit/category"
 import { isCustomId, useCustomDeviceStore } from "../../conduit/customDevices"
+import { useRecentDevices } from "../../conduit/useRecentDevices"
 
 interface EquipmentCardProps {
   entry: DeviceIndexEntry
+  onClick?: () => void
 }
 
-export function EquipmentCard({ entry }: EquipmentCardProps) {
+export function EquipmentCard({ entry, onClick }: EquipmentCardProps) {
   const Icon = getCategoryIcon(entry.category)
   const name = [entry.manufacturer, entry.model].filter(Boolean).join(" ")
   const needsReview = entry.verified === false
   const custom = isCustomId(entry.id)
   const removeCustomDevice = useCustomDeviceStore((s) => s.removeCustomDevice)
+  const addRecent = useRecentDevices((s) => s.addRecent)
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    addRecent(entry.id)
     e.dataTransfer.setData("device-id", entry.id)
     e.dataTransfer.effectAllowed = "copy"
 
@@ -37,10 +41,14 @@ export function EquipmentCard({ entry }: EquipmentCardProps) {
     <div
       draggable
       onDragStart={handleDragStart}
+      onClick={onClick}
       data-device-id={entry.id}
-      className="flex flex-col gap-1.5 px-3 py-2.5 rounded-[2px] cursor-grab active:cursor-grabbing transition-colors border-l-2 hover:bg-white/5"
+      className="group flex flex-col gap-1.5 px-3 py-2.5 rounded-[2px] cursor-pointer hover:bg-white/5 transition-colors border-l-2 relative"
       style={{ background: "var(--bg)", borderColor: needsReview ? "#F59E0B" : "transparent" }}
     >
+      <div className="absolute left-[-4px] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing transition-opacity">
+        <GripVertical size={12} style={{ color: "var(--text-secondary)" }} />
+      </div>
       <div className="flex items-start gap-2">
         <div className="shrink-0 mt-0.5 opacity-60">
           <Icon size={13} style={{ color: "var(--text-secondary)" }} />

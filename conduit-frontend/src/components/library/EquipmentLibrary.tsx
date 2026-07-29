@@ -1,22 +1,17 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Plus } from "lucide-react"
+import { useVirtualizer } from "@tanstack/react-virtual"
+import Fuse from "fuse.js"
+
 import { useDeviceIndex } from "../../conduit/useDevices"
 import { useCustomDeviceStore, customToIndexEntry } from "../../conduit/customDevices"
+import { useRecentDevices } from "../../conduit/useRecentDevices"
 import { EquipmentCard } from "./EquipmentCard"
 import { CategoryFilter } from "./CategoryFilter"
 import { SearchInput } from "../ui/SearchInput"
 import { CustomDeviceModal } from "../layout/CustomDeviceModal"
-import type { DeviceIndexEntry } from "../../conduit/source"
+import { DeviceDetailsModal } from "./DeviceDetailsModal"
 import type { DeviceCategory } from "../../conduit/types"
-
-function matches(entry: DeviceIndexEntry, q: string): boolean {
-  if (!q) return true
-  const hay = [entry.manufacturer, entry.model, entry.model_variant, entry.description, ...(entry.tags ?? [])]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase()
-  return hay.includes(q)
-}
 
 export function EquipmentLibrary() {
   const [search, setSearch] = useState("")
@@ -24,6 +19,7 @@ export function EquipmentLibrary() {
   const [category, setCategory] = useState<DeviceCategory | "">("")
   const [verifiedOnly, setVerifiedOnly] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
+  const [previewDeviceId, setPreviewDeviceId] = useState<string | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search.trim().toLowerCase()), 300)
@@ -32,29 +28,60 @@ export function EquipmentLibrary() {
 
   const { data, isLoading, error } = useDeviceIndex()
   const customEntries = useCustomDeviceStore((s) => s.entries)
-  // User's own devices sit at the top of the library.
+  const recentIds = useRecentDevices((s) => s.recentIds)
+
   const allEntries = useMemo(
     () => [...customEntries.map(customToIndexEntry), ...(data?.index.devices ?? [])],
     [customEntries, data]
   )
 
-  // Categories actually present, for the filter pills.
   const availableCategories = useMemo(() => {
     const set = new Set<DeviceCategory>()
     for (const e of allEntries) set.add(e.category)
     return [...set].sort()
   }, [allEntries])
 
-  const filtered = useMemo(
-    () =>
-      allEntries.filter(
-        (e) =>
-          matches(e, debouncedSearch) &&
-          (category === "" || e.category === category) &&
-          (!verifiedOnly || e.verified === true)
-      ),
-    [allEntries, debouncedSearch, category, verifiedOnly]
+  // Fuse search
+  const fuse = useMemo(
+    () => new Fuse(allEntries, { keys: ["manufacturer", "model", "model_variant", "description", "tags"], threshold: 0.3 }),
+    [allEntries]
   )
+
+  const filtered = useMemo(() => {
+    let results = allEntries
+
+    if (debouncedSearch) {
+      results = fuse.search(debouncedSearch).map((r) => r.item)
+    }
+
+    results = results.filter((e) => {
+      if (category && e.category !== category) return false
+      if (verifiedOnly && !e.verified) return false
+      return true
+    })
+
+    // Sort to put recents at top if NO search is active
+    if (!debouncedSearch && recentIds.length > 0) {
+      const recents = new Set(recentIds)
+      const recentItems = results.filter((e) => recents.has(e.id))
+      // Maintain the order of recentIds
+      recentItems.sort((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id))
+      const otherItems = results.filter((e) => !recents.has(e.id))
+      results = [...recentItems, ...otherItems]
+    }
+
+    return results
+  }, [allEntries, fuse, debouncedSearch, category, verifiedOnly, recentIds])
+
+  // Virtualization
+  const parentRef = useRef<HTMLDivElement>(null)
+  
+  const virtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 72, // approximate height of card + gap
+    overscan: 5,
+  })
 
   return (
     <div className="flex flex-col h-full">
@@ -79,13 +106,17 @@ export function EquipmentLibrary() {
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+      <div 
+        ref={parentRef}
+        className="flex-1 overflow-y-auto p-2"
+        style={{ scrollbarWidth: "thin" }}
+      >
         {isLoading && (
-          <>
+          <div className="space-y-1">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
-          </>
+          </div>
         )}
 
         {error && (
@@ -102,7 +133,38 @@ export function EquipmentLibrary() {
           </div>
         )}
 
-        {!isLoading && filtered.map((entry) => <EquipmentCard key={entry.id} entry={entry} />)}
+        {!isLoading && filtered.length > 0 && (
+          <div
+            style={{
+              height: `${virtualizer.getTotalSize()}px`,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {virtualizer.getVirtualItems().map((virtualItem) => {
+              const entry = filtered[virtualItem.index]
+              return (
+                <div
+                  key={virtualItem.key}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                    paddingBottom: "4px" // space between cards
+                  }}
+                >
+                  <EquipmentCard 
+                    entry={entry} 
+                    onClick={() => setPreviewDeviceId(entry.id)}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -122,6 +184,7 @@ export function EquipmentLibrary() {
       )}
 
       <CustomDeviceModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <DeviceDetailsModal deviceId={previewDeviceId} onClose={() => setPreviewDeviceId(null)} />
     </div>
   )
 }

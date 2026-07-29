@@ -9,7 +9,13 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ categories, selected, onChange }: CategoryFilterProps) {
   return (
-    <div className="flex flex-wrap gap-1">
+    <div 
+      className="flex gap-1 overflow-x-auto whitespace-nowrap"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    >
+      <style>{`
+        .flex::-webkit-scrollbar { display: none; }
+      `}</style>
       <button
         onClick={() => onChange("")}
         className="text-[10px] px-2 py-0.5 rounded-[2px] transition-colors"

@@ -130,7 +130,7 @@ function AppShellInner() {
               className="shrink-0 border-r flex flex-col overflow-hidden"
               style={{ background: "var(--panel)", borderColor: "var(--border)" }}
             >
-              <div className="w-80">
+              <div className="w-80 h-full">
                 <Sidebar />
               </div>
             </motion.div>
